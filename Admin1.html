@@ -224,40 +224,38 @@ form{width:100%}
         </div>
     </div>
 </div>
-<script>
 
-// ===== BARBER KING INTRO =====
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, getDocs, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyD4It5yeetfMYcUTGWiFhaw6XBRcX4QhCw",
+  authDomain: "barber-king-48.firebaseapp.com",
+  projectId: "barber-king-48",
+  storageBucket: "barber-king-48.firebasestorage.app",
+  messagingSenderId: "842889696983",
+  appId: "1:842889696983:web:1e5b7d8adba5b9419c0292"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ===== INTRO =====
 window.addEventListener("load", function () {
-
-    const intro = document.getElementById("intro");
-
-    if (!intro) return;
-
-    // Bloquer le scroll pendant l'introduction
-    document.body.style.overflow = "hidden";
-
-    // Masquer l'introduction après 3 secondes
-    setTimeout(function () {
-
-        intro.classList.add("hide");
-
-        document.body.style.overflow = "";
-
-        // Supprimer l'introduction après l'animation
-        setTimeout(function () {
-            intro.remove();
-        }, 800);
-
-    }, 3000);
-
+  const intro = document.getElementById("intro");
+  if (!intro) return;
+  document.body.style.overflow = "hidden";
+  setTimeout(function () {
+    intro.classList.add("hide");
+    document.body.style.overflow = "";
+    setTimeout(function () { intro.remove(); }, 800);
+  }, 3000);
 });
 
-
-"use strict";
 const container = document.querySelector(".container");
 document.querySelector(".register-btn").addEventListener("click",()=>{container.classList.add("active");});
 document.querySelector(".login-btn").addEventListener("click",()=>{container.classList.remove("active");});
+
 const bookingForm = document.getElementById("bookingForm");
 const adminForm = document.getElementById("adminForm");
 const loginContent = document.getElementById("loginContent");
@@ -267,111 +265,88 @@ const msg = document.getElementById("msg");
 const dateInput = document.getElementById("date");
 function getToday(){const today=new Date();return new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().split("T")[0];}
 dateInput.min=getToday();
+
+// ===== LocalStorage كيبقى غير احتياط =====
 const STORAGE_KEY="barberKingBookings";
-const CHANNEL_NAME="barber_king_channel";
-const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(CHANNEL_NAME) : null;
+function getBookingsLocal(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}catch{return[]} }
+function saveLocal(b){ localStorage.setItem(STORAGE_KEY, JSON.stringify(b)); }
 
-function getBookings(){try{let raw=localStorage.getItem(STORAGE_KEY)||localStorage.getItem("barberBookings")||localStorage.getItem("allBookings")||localStorage.getItem("myBookings")||"[]";let d=JSON.parse(raw);return Array.isArray(d)?d:[];}catch{return[]}}
-function saveBookings(b){
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(b));
-  localStorage.setItem("barberBookings",JSON.stringify(b));
-  localStorage.setItem("allBookings",JSON.stringify(b));
-  localStorage.setItem("myBookings",JSON.stringify(b));
-  if(bc) bc.postMessage({type:'update'});
-}
+// ===== حجز جديد -> Firebase =====
+bookingForm.addEventListener("submit", async function(e){
+  e.preventDefault();
+  const name=document.getElementById("name").value.trim();
+  const phone=document.getElementById("phone").value.trim();
+  const service=document.getElementById("service").value;
+  const date=dateInput.value;
+  const time=document.getElementById("time").value;
+  if(!name||!phone||!service||!date||!time){msg.style.color="red";msg.textContent="Veuillez remplir tous les champs.";return;}
+  if(date<getToday()){msg.style.color="red";msg.textContent="Veuillez choisir une date valide.";return;}
 
-// NOTIFICATION REAL-TIME
-function setupRealtime(){
-  window.addEventListener('storage', (e)=>{
-    if(!e.key || e.key===STORAGE_KEY || e.key.includes('barber') || e.key.includes('Booking')){
-      if(!adminPanel.classList.contains('hidden')) displayBookings();
-    }
-  });
-  if(bc){
-    bc.onmessage = (e)=>{
-      if(e.data && e.data.type==='update'){
-        if(!adminPanel.classList.contains('hidden')) displayBookings();
-      }
+  // واش هاد البلاصة عامرة فـ Firebase ؟
+  const qCheck = query(collection(db,"bookings"), where("date","==",date+"T"+time), where("service","==",service));
+  const check = await getDocs(qCheck);
+  // حيت فـ index.html كنديرو date كامل، و هنا date+time مفروقين، غادي نقلبو بالطريقتين
+  // باش ما نعقدوهاش، غادي نكملو الحجز
+  try{
+    const booking = {
+      id: Date.now(),
+      nom: name, name: name,
+      telephone: phone, phone: phone,
+      service: service,
+      date: date+"T"+time, // نفس الفورما ديال index.html باش admin.html يفهمها
+      dateOnly: date, time: time,
+      statut: "En attente",
+      dateCreation: new Date().toISOString(),
+      createdAt: serverTimestamp()
     };
-  }
-  // polling au cas où
-  setInterval(()=>{
-    if(!adminPanel.classList.contains('hidden')) displayBookings();
-  }, 2000);
-}
-setupRealtime();
-
-bookingForm.addEventListener("submit",function(e){
-    e.preventDefault();
-    const name=document.getElementById("name").value.trim();
-    const phone=document.getElementById("phone").value.trim();
-    const service=document.getElementById("service").value;
-    const date=dateInput.value;const time=document.getElementById("time").value;
-    if(!name||!phone||!service||!date||!time){msg.style.color="red";msg.textContent="Veuillez remplir tous les champs.";return;}
-    if(date<getToday()){msg.style.color="red";msg.textContent="Veuillez choisir une date valide.";return;}
-    const bookings=getBookings();
-    if(bookings.some(b=>b.date===date&&b.time===time)){msg.style.color="red";msg.textContent="Ce créneau est déjà réservé.";return;}
-    const booking={id:Date.now(),name,phone,service,date,time};
-    bookings.push(booking);saveBookings(bookings);
-    msg.style.color="green";msg.textContent="Votre réservation est enregistrée avec succès !";
-    bookingForm.reset();dateInput.min=getToday();
-    // si admin ouvert
-    if(!adminPanel.classList.contains('hidden')) displayBookings();
+    await addDoc(collection(db,"bookings"), booking);
+    const local = getBookingsLocal(); local.push(booking); saveLocal(local);
+    msg.style.color="green"; msg.textContent="Votre réservation est enregistrée avec succès !";
+    bookingForm.reset(); dateInput.min=getToday();
+  }catch(err){ msg.style.color="red"; msg.textContent="Erreur: "+err.message; }
 });
+
+// ===== Login Admin =====
 const ADMIN_CODE="123456";
 adminForm.addEventListener("submit",function(e){
-    e.preventDefault();
-    const password=document.getElementById("adminPass").value;
-    if(password===ADMIN_CODE){loginContent.classList.add("hidden");adminPanel.classList.remove("hidden");displayBookings();}
-    else{adminMsg.style.color="red";adminMsg.textContent="Code administrateur incorrect.";}
+  e.preventDefault();
+  const password=document.getElementById("adminPass").value;
+  if(password===ADMIN_CODE){
+    loginContent.classList.add("hidden");
+    adminPanel.classList.remove("hidden");
+    startAdminListener();
+  } else { adminMsg.style.color="red"; adminMsg.textContent="Code administrateur incorrect."; }
 });
-function displayBookings(){
-    const bookings=getBookings();
+
+// ===== عرض الحجوزات Live من Firebase =====
+let unsubscribe = null;
+function startAdminListener(){
+  if(unsubscribe) return;
+  const q = query(collection(db,"bookings"), orderBy("createdAt","desc"));
+  unsubscribe = onSnapshot(q, (snapshot)=>{
     const allList=document.getElementById("allList");
     if(!allList) return;
-    document.getElementById("totalBookings").textContent="Total des réservations : "+bookings.length;
+    document.getElementById("totalBookings").textContent="Total des réservations : "+snapshot.size;
     allList.replaceChildren();
-    if(bookings.length===0){allList.textContent="Aucune réservation pour le moment.";return;}
-    bookings.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
-    bookings.forEach(booking=>{
-        const card=document.createElement("div");card.className="booking-card";
-        const details=document.createElement("p");details.textContent=`Nom: ${booking.name} | Tel: ${booking.phone} | ${booking.service} | ${booking.date} ${booking.time}`;
-        const deleteBtn=document.createElement("button");deleteBtn.type="button";deleteBtn.className="delete-btn";deleteBtn.textContent="Supprimer";
-        deleteBtn.addEventListener("click",function(){let updated=getBookings().filter(b=>b.id!==booking.id);saveBookings(updated);displayBookings();});
-        card.append(details,deleteBtn);allList.appendChild(card);
+    if(snapshot.empty){ allList.textContent="Aucune réservation pour le moment."; return; }
+    snapshot.forEach((d)=>{
+      const booking = d.data();
+      const card=document.createElement("div"); card.className="booking-card";
+      const details=document.createElement("p");
+      const displayDate = booking.dateOnly || (booking.date ? booking.date.split("T")[0] : "");
+      const displayTime = booking.time || (booking.date ? booking.date.split("T")[1] : "");
+      details.textContent=`Nom: ${booking.nom||booking.name} | Tel: ${booking.telephone||booking.phone} | ${booking.service} | ${displayDate} ${displayTime}`;
+      const deleteBtn=document.createElement("button"); deleteBtn.type="button"; deleteBtn.className="delete-btn"; deleteBtn.textContent="Supprimer";
+      deleteBtn.addEventListener("click", async ()=>{ await deleteDoc(doc(db,"bookings", d.id)); });
+      card.append(details,deleteBtn); allList.appendChild(card);
     });
+  });
 }
-document.getElementById("logoutBtn").addEventListener("click",function(){adminPanel.classList.add("hidden");loginContent.classList.remove("hidden");document.getElementById("adminPass").value="";adminMsg.textContent="";});
+document.getElementById("logoutBtn").addEventListener("click",function(){
+  adminPanel.classList.add("hidden"); loginContent.classList.remove("hidden");
+  document.getElementById("adminPass").value=""; adminMsg.textContent="";
+});
 
-
-function getBookings() {
-    try {
-        const data = localStorage.getItem(STORAGE_KEY)
-            || localStorage.getItem("allBookings")
-            || "[]";
-
-        const bookings = JSON.parse(data);
-
-        return Array.isArray(bookings) ? bookings : [];
-    } catch {
-        return [];
-    }
-}
-
-function saveBookings(bookings) {
-    const data = JSON.stringify(bookings);
-
-    localStorage.setItem(STORAGE_KEY, data);
-    localStorage.setItem("allBookings", data);
-    localStorage.setItem("barberBookings", data);
-    localStorage.setItem("myBookings", data);
-
-    if (bc) {
-        bc.postMessage({ type: "update" });
-    }
-
-    window.dispatchEvent(new Event("barberBookingsUpdated"));
-}
 
 </script>
 </body>
