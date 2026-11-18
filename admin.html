@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin - BARBER KING</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#020617;color:#fff;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#020617;border-bottom:2px solid #facc15;border-radius:10px}
+.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:900}
+.logo img{width:42px;height:42px;object-fit:contain;mix-blend-mode:screen}
+.logo span{color:#facc15}
+h2{color:#facc15;text-align:center;margin:20px 0}
+table{width:100%;border-collapse:collapse;background:#0a1a3a;border-radius:12px;overflow:hidden}
+th,td{padding:12px;border-bottom:1px solid #1e3a8a;text-align:left;font-size:14px}
+th{background:#2563eb;color:#fff}
+button{padding:6px 12px;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+.del{background:#ef4444;color:#fff}
+.clear{background:#facc15;color:#000;margin:15px 0;padding:10px 18px;border-radius:20px}
+a{color:#facc15}
+.btn-auto{background:#22c55e;color:#fff;margin:15px 0 15px 10px;padding:10px 18px;border-radius:20px}
+
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo"><img src="logoMk.ico">BARBER <span>KING</span> - ADMIN</div>
+<a href="index.html">← Retour au site</a>
+</header>
+<h2>📅 Liste des Réservations</h2>
+<button class="clear" onclick="clearAll()">🗑️ Supprimer Tout</button>
+<button class="btn-auto" onclick="addAutoReservation()">➕ Auto Admine</button>
+<table>
+<tr><th>Nom</th><th>Téléphone</th><th>Service</th><th>Date RDV</th><th>Date Réservation</th><th>Action</th></tr>
+<tbody id="list"></tbody>
+</table>
+
+<script>
+"use strict";
+
+// ========================================
+// BARBER KING - ADMINISTRATION
+// ========================================
+
+const STORAGE_KEY = "barberKingReservations";
+const OLD_STORAGE_KEY = "allBookings";
+
+// Récupérer les deux listes
+function getAllReservations() {
+
+    let current = [];
+    let old = [];
+
+    try {
+        current = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        old = JSON.parse(localStorage.getItem(OLD_STORAGE_KEY) || "[]");
+
+        if (!Array.isArray(current)) current = [];
+        if (!Array.isArray(old)) old = [];
+
+    } catch (error) {
+        console.error("Erreur de lecture :", error);
+    }
+
+    // Fusionner les deux listes
+    const all = [...current, ...old];
+
+    // Éviter les doublons
+    const unique = [];
+
+    all.forEach((r, i) => {
+
+        const exists = unique.some(item =>
+            item.id && r.id
+                ? item.id === r.id
+                : item.nom === (r.nom || r.name) &&
+                  item.telephone === (r.telephone || r.phone) &&
+                  item.date === (r.date || r.time)
+        );
+
+        if (!exists) {
+            unique.push({
+                id: r.id || Date.now() + i,
+                nom: r.nom || r.name || "",
+                telephone: r.telephone || r.phone || "",
+                service: r.service || "",
+                date: r.date || r.time || "",
+                dateCreation: r.dateCreation || r.date || ""
+            });
+        }
+    });
+
+    return unique;
+}
+
+
+// ========================================
+// AFFICHER LES RESERVATIONS
+// ========================================
+
+function load() {
+
+    const list = document.getElementById("list");
+
+    if (!list) return;
+
+    const reservations = getAllReservations();
+
+    list.innerHTML = "";
+
+    if (reservations.length === 0) {
+
+        list.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center">
+                    Aucune réservation enregistrée.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    reservations.forEach((r, index) => {
+
+        const tr = document.createElement("tr");
+
+        const values = [
+            r.nom,
+            r.telephone,
+            r.service,
+            r.date ? new Date(r.date).toLocaleString("fr-FR") : "",
+            r.dateCreation
+                ? new Date(r.dateCreation).toLocaleString("fr-FR")
+                : ""
+        ];
+
+        values.forEach(value => {
+
+            const td = document.createElement("td");
+
+            td.textContent = value;
+
+            tr.appendChild(td);
+
+        });
+
+        const tdAction = document.createElement("td");
+
+        const button = document.createElement("button");
+
+        button.textContent = "Supprimer";
+
+        button.className = "del";
+
+        button.onclick = () => delOne(index);
+
+        tdAction.appendChild(button);
+
+        tr.appendChild(tdAction);
+
+        list.appendChild(tr);
+
+    });
+
+    console.log("Total réservations :", reservations.length);
+}
+
+
+// ========================================
+// ENREGISTRER LES DEUX LISTES
+// ========================================
+
+function saveAllReservations(reservations) {
+
+    // Format principal : script.js actuel
+    const current = reservations.map(r => ({
+        id: r.id,
+        nom: r.nom,
+        telephone: r.telephone,
+        service: r.service,
+        date: r.date,
+        statut: r.statut || "En attente",
+        dateCreation: r.dateCreation
+    }));
+
+    // Ancien format : allBookings
+    const old = reservations.map(r => ({
+        id: r.id,
+        name: r.nom,
+        phone: r.telephone,
+        service: r.service,
+        time: r.date,
+        date: r.dateCreation
+    }));
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+    localStorage.setItem(OLD_STORAGE_KEY, JSON.stringify(old));
+}
+
+
+// ========================================
+// SUPPRIMER UNE RESERVATION
+// ========================================
+
+function delOne(index) {
+
+    const reservations = getAllReservations();
+
+    if (!reservations[index]) return;
+
+    if (confirm("Supprimer cette réservation ?")) {
+
+        reservations.splice(index, 1);
+
+        saveAllReservations(reservations);
+
+        load();
+    }
+}
+
+
+// ========================================
+// SUPPRIMER TOUTES LES RESERVATIONS
+// ========================================
+
+function clearAll() {
+
+    if (confirm("Supprimer toutes les réservations ?")) {
+
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(OLD_STORAGE_KEY);
+
+        load();
+    }
+}
+
+
+// ========================================
+// ACTUALISATION AUTOMATIQUE
+// ========================================
+
+window.addEventListener("storage", function(event) {
+
+    if (
+        event.key === STORAGE_KEY ||
+        event.key === OLD_STORAGE_KEY
+    ) {
+        load();
+    }
+});
+
+
+// ========================================
+// INITIALISATION
+// ========================================
+
+load();
+// ========================================
+// BOUTON AUTO ADMINE
+// ========================================
+const AUTO_COUNTER_KEY = "barberKingAutoCounter";
+
+function getNextAutoPhone() {
+    let counter = parseInt(localStorage.getItem(AUTO_COUNTER_KEY) || "0");
+
+    if (counter === 0) {
+        const all = getAllReservations();
+        let max = 0;
+        all.forEach(r => {
+            if (r.nom === "auto admine" && r.telephone) {
+                let num = parseInt(r.telephone.replace(/\D/g, ""));
+                if (!isNaN(num) && num > max) max = num;
+            }
+        });
+        counter = max > 0 ? max : 600000000;
+    }
+
+    counter++;
+    localStorage.setItem(AUTO_COUNTER_KEY, counter);
+    return "0" + counter; // 0600000001, 0600000002...
+}
+
+function addAutoReservation() {
+    const now = new Date();
+    const nowISO = now.toISOString();
+
+    const newRes = {
+        id: Date.now(),
+        nom: "auto admine",
+        telephone: getNextAutoPhone(),
+        service: "Coupe+Barber",
+        date: nowISO, // Date RDV = AUJOURD'HUI
+        statut: "En attente",
+        dateCreation: nowISO // Date Réservation = AUJOURD'HUI
+    };
+
+    const all = getAllReservations();
+    all.push(newRes);
+    saveAllReservations(all);
+    load();
+}
+
+</SCript>
+<!-- ===== PLAYLIST 200 AGHANI - BARBER KING - VERSION MSHHA ===== -->
+<style>
+  .bk-playlist-box{max-width:600px;margin:30px auto;background:#111;border:1px solid #c9a227;border-radius:18px;padding:20px;font-family:Arial;color:#fff}
+  .bk-playlist-box h2{text-align:center;color:#e8c55a;margin:0 0 5px 0;font-size:22px}
+  .bk-playlist-box p{text-align:center;color:#aaa;font-size:13px;margin:0 0 15px 0}
+  .bk-now{background:#1e1e1e;border-radius:12px;padding:12px;text-align:center;font-weight:bold;margin-bottom:12px;border:1px solid #333}
+  .bk-now span{color:#e8c55a}
+  .bk-controls{display:flex;justify-content:center;gap:10px;margin:12px 0}
+  .bk-controls button{background:#c9a227;border:none;width:50px;height:50px;border-radius:50%;font-size:20px;cursor:pointer;color:#111}
+  .bk-controls button.big{width:62px;height:62px;font-size:24px}
+  .bk-progress{width:100%;height:6px;background:#333;border-radius:10px;overflow:hidden;margin:10px 0;cursor:pointer}
+  .bk-progress-bar{height:100%;width:0%;background:#e8c55a}
+  .bk-time{display:flex;justify-content:space-between;font-size:12px;color:#aaa}
+  .bk-search{width:100%;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#fff;outline:none;margin-top:10px}
+  .bk-list{list-style:none;padding:0;margin:12px 0 0 0;max-height:100px;overflow-y:auto}
+  .bk-list li{padding:8px 10px;font-size:13px;background:#1a1a1a;margin-bottom:5px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;border:1px solid #222}
+  .bk-list li.active{background:#c9a227;color:#111;font-weight:bold}
+</style>
+
+<div class="bk-playlist-box">
+  <h2>🎵 PLAYLIST - AMBIANCE SALON</h2>
+  <p id="bkCount">music - BARBER KING</p>
+  <div class="bk-now">Maintenant : <span id="bkNow">---</span></div>
+  <audio id="bkPlayer"></audio>
+  <div class="bk-progress" id="bkProgress"><div class="bk-progress-bar" id="bkBar"></div></div>
+  <div class="bk-time"><span id="bkCurrent">0:00</span><span id="bkDuration">0:00</span></div>
+
+  <div class="bk-controls">
+    <button onclick="bkPrev()">⏮</button>
+    <button class="big" id="bkPlayBtn" onclick="bkToggle()">▶</button>
+     <button onclick="bkStop()">⏹</button>
+    <button onclick="bkNext()">⏭</button>
+  </div>
+
+  <input class="bk-search" id="bkSearch" placeholder="🔍 9leb 3la aghnya...">
+  <ul class="bk-list" id="bkList"></ul>
+</div>
+
+<script>
+  const bkSongs = [];
+  for(let i=1; i<=200; i++){
+    bkSongs.push({ title: "Music " + i, file: "music/sang 1" + i + "mp3" });
+  }
+  let bkFiltered = [...bkSongs];
+  let bkIndex = 0;
+  let bkIsStopped = false;
+
+  const bkPlayer = document.getElementById('bkPlayer');
+  const bkList = document.getElementById('bkList');
+  const bkNow = document.getElementById('bkNow');
+  const bkPlayBtn = document.getElementById('bkPlayBtn');
+  const bkBar = document.getElementById('bkBar');
+  const bkProgress = document.getElementById('bkProgress');
+  const bkCurrent = document.getElementById('bkCurrent');
+  const bkDuration = document.getElementById('bkDuration');
+
+  function bkFormat(s){ if(!s || isNaN(s)) return "0:00"; let m=Math.floor(s/60); let sec=Math.floor(s%60); return m+":"+(sec<10?"0"+sec:sec); }
+
+  function bkRender(){
+    bkList.innerHTML = "";
+    bkFiltered.forEach((song)=>{
+      const realIndex = bkSongs.indexOf(song);
+      const li = document.createElement('li');
+      li.innerHTML = `<span>${realIndex+1}. ${song.title}</span><small>▶</small>`;
+      if(realIndex === bkIndex) li.classList.add('active');
+      li.onclick = ()=> bkPlay(realIndex);
+      bkList.appendChild(li);
+    });
+  }
+
+  function bkPlay(i){
+    bkIndex = i;
+    bkIsStopped = false;
+    bkPlayer.src = bkSongs[i].file;
+    bkNow.textContent = bkSongs[i].title;
+    bkPlayer.play();
+    bkPlayBtn.textContent = "⏸";
+    bkRender();
+  }
+
+function bkToggle(){
+    if(!bkPlayer.src){ bkPlay(0); return; }
+    if(bkPlayer.paused){
+      bkIsStopped = false;
+      bkPlayer.play();
+      bkPlayBtn.textContent = "⏸";
+    } else {
+      bkPlayer.pause();
+      bkPlayBtn.textContent = "▶";
+    }
+  }
+
+  function bkStop(){
+    bkIsStopped = true;
+    bkPlayer.pause();
+    bkPlayer.currentTime = 0;
+    bkBar.style.width = "0%";
+    bkCurrent.textContent = "0:00";
+    bkPlayBtn.textContent = "▶";
+  }
+
+
+
+  function bkNext(){
+    if(bkIsStopped) return;
+    bkIndex = (bkIndex+1) % bkSongs.length;
+    bkPlay(bkIndex);
+  }
+
+  function bkPrev(){
+    bkIndex = (bkIndex-1 + bkSongs.length) % bkSongs.length;
+    bkPlay(bkIndex);
+  }
+
+  // 1 مور وحدة
+  bkPlayer.onended = ()=> { if(!bkIsStopped) bkNext(); };
+
+  // إلا شي أغنية ناقصة، دوز اللي موراها - ولكن إلا كنتي داير سطوب مادوزش
+  bkPlayer.onerror = ()=> { if(!bkIsStopped) setTimeout(bkNext, 500); };
+
+  bkPlayer.ontimeupdate = ()=>{
+    if(bkPlayer.duration){
+      bkBar.style.width = (bkPlayer.currentTime / bkPlayer.duration * 100) + "%";
+      bkCurrent.textContent = bkFormat(bkPlayer.currentTime);
+      bkDuration.textContent = bkFormat(bkPlayer.duration);
+    }
+  };
+
+  bkProgress.onclick = (e)=>{
+    const r = bkProgress.getBoundingClientRect();
+    if(bkPlayer.duration) bkPlayer.currentTime = ((e.clientX - r.left) / r.width) * bkPlayer.duration;
+  };
+
+  document.getElementById('bkSearch').addEventListener('input', e=>{
+    const q = e.target.value.toLowerCase();
+    bkFiltered = bkSongs.filter(s=> s.title.toLowerCase().includes(q));
+    bkRender();
+  });
+
+  bkRender();
+  bkNow.textContent = bkSongs[0].title;
+</script>
+
+</body>
+</html>

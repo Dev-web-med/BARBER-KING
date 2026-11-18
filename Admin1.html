@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BARBER KING | Réservation</title>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--black:#111;--gold:#d4a017;--blue:#07082b}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Poppins",sans-serif;text-decoration:none}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;background:var(--black)}
+.container{position:relative;width:850px;max-width:100%;height:580px;background:#fff;border-radius:30px;box-shadow:0 0 30px rgba(0,0,0,.5);overflow:hidden;border:2px solid var(--gold)}
+.container h1{font-size:30px;margin-bottom:15px}
+.container p{font-size:14px;margin:12px 0}
+.form-box{position:absolute;right:0;width:50%;height:100%;background:#fff;display:flex;align-items:center;justify-content:center;color:#333;text-align:center;padding:35px;z-index:1;transition:.6s ease-in-out 1.2s, visibility 0s 1s}
+.container.active .form-box{right:50%}
+.form-box.register{visibility:hidden}
+.container.active .form-box.register{visibility:visible}
+form{width:100%}
+.input-box{position:relative;margin:18px 0}
+.input-box input,.input-box select{width:100%;padding:13px 45px 13px 15px;background:#eee;border-radius:8px;border:none;outline:none;font-size:14px;color:#333}
+.input-box i{position:absolute;right:15px;top:50%;transform:translateY(-50%);font-size:20px;pointer-events:none}
+.btn{width:100%;height:46px;background:var(--blue);border-radius:8px;border:none;cursor:pointer;font-size:15px;color:#fff;font-weight:600;transition:.3s}
+.btn:hover{background:var(--gold);transform:translateY(-2px);color:#000}
+.social-icons{display:flex;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.social-icons a{display:inline-flex;padding:9px;border:2px solid #ccc;border-radius:8px;font-size:21px;color:#333;margin:4px;transition:.3s}
+.social-icons a:hover{color:var(--blue);border-color:var(--blue)}
+.toggle-box{position:absolute;width:100%;height:100%}
+.toggle-box::before{content:'';position:absolute;left:-250%;width:300%;height:100%;background:linear-gradient(135deg,var(--blue),#07082b);border-radius:150px;z-index:2;transition:1.8s ease-in-out;border-right:4px solid var(--gold)}
+.container.active .toggle-box::before{left:50%}
+.toggle-panel{position:absolute;width:50%;height:100%;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px;z-index:2;transition:.6s ease-in-out}
+.toggle-panel.toggle-left{left:0;transition-delay:1.2s}
+.container.active .toggle-panel.toggle-left{left:-50%;transition-delay:.6s}
+.toggle-panel.toggle-right{right:-50%;transition-delay:.6s}
+.container.active .toggle-panel.toggle-right{right:0;transition-delay:1.2s}
+.toggle-panel .btn{width:150px;margin-top:15px;background:transparent;border:2px solid #fff}
+.toggle-panel .btn:hover{background:#fff;color:var(--blue)}
+.hidden{display:none !important}
+.message{font-size:13px;margin-top:10px;font-weight:500}
+#adminPanel{width:100%}
+#allList{max-height:300px;overflow-y:auto;margin-bottom:15px;text-align:left}
+.booking-card{background:#eee;border-radius:8px;padding:10px;margin:8px 0;font-size:12px;border-left:4px solid var(--gold)}
+.delete-btn{background:#e74c3c;border:none;color:white;padding:6px 12px;border-radius:5px;cursor:pointer;margin-top:5px}
+@media screen and (max-width: 650px){
+  body{padding:10px}.container{height:750px}
+  .form-box{width:100%;height:70%;bottom:0;padding:25px}
+  .container.active .form-box{right:0;bottom:30%}
+  .toggle-box::before{left:0;top:-270%;width:100%;height:300%;border-radius:20vw}
+  .container.active .toggle-box::before{left:0;top:70%}
+  .toggle-panel{width:100%;height:30%}
+  .toggle-panel.toggle-left{top:0}.container.active .toggle-panel.toggle-left{left:0;top:-30%}
+  .toggle-panel.toggle-right{right:0;bottom:-30%}.container.active .toggle-panel.toggle-right{bottom:0}
+}
+/* ==================== INTRO / BIENVENUE ==================== */
+
+#intro {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+
+    display: grid;
+    place-items: center;
+
+    background: #081426;
+    color: #f7f8fa;
+
+    animation: introHide 0.65s ease 1.8s forwards;
+}
+
+.intro-inner {
+    width: min(420px, 85vw);
+    text-align: center;
+}
+
+.intro-text {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+
+    font-size: clamp(1.8rem, 6vw, 3rem);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.intro-text span {
+    animation: introWord 0.7s both;
+}
+
+.intro-text span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.intro-text span:nth-child(3) {
+    color: var(--gold);
+    animation-delay: 0.3s;
+}
+
+.intro-bar {
+    height: 4px;
+    margin-top: 24px;
+
+    overflow: hidden;
+    border-radius: 9px;
+    background: #26364b;
+}
+
+.intro-bar::after {
+    content: "";
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    background: var(--gold);
+    transform-origin: left;
+
+    animation: introBar 1.25s ease both;
+}
+
+/* ==================== ANIMATIONS ==================== */
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(-50%, 0);
+    }
+    50% {
+        transform: translate(-50%, -5px);
+    }
+}
+
+@keyframes progressLoad {
+    from {
+        width: 0;
+    }
+    to {
+        width: var(--level, 0%);
+    }
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes introWord {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes introBar {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+@keyframes introHide {
+    to {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+</style>
+</head>
+<body>
+      <div id="intro">
+  <div class="intro-inner">
+    <div class="intro-text"><span>BARBER</span><span> KING 👑 </span> <span>Réservation</span></div>
+    <div class="intro-bar"></div>
+  </div>
+</div>
+<div class="container">
+    <div class="form-box login">
+        <form id="adminForm">
+            <div id="loginContent">
+                <h1>Login Admin</h1>
+                <div class="input-box"><input type="password" id="adminPass" placeholder="Code Admin" required><i class='bx bx-lock'></i></div>
+                <button type="submit" class="btn"><i class='bx bx-log-in'></i> Login</button>
+                <p id="adminMsg" class="message" aria-live="polite"></p>
+                <div class="social-icons">
+                    <a href="https://www.google.com" target="_blank"><i class='bx bxl-google'></i></a>
+                    <a href="https://www.linkedin.com" target="_blank"><i class='bx bxl-linkedin'></i></a>
+                    <a href="https://github.com" target="_blank"><i class='bx bxl-github'></i></a>
+                    <a href="https://www.facebook.com" target="_blank"><i class='bx bxl-facebook'></i></a>
+                    <a href="https://www.instagram.com" target="_blank"><i class='bx bxl-instagram'></i></a>
+                </div>
+            </div>
+            <div id="adminPanel" class="hidden">
+                <h2>Liste des réservations</h2>
+                <p id="totalBookings" style="color:var(--blue);font-weight:600"></p>
+                <div id="allList"></div>
+                <button type="button" class="btn" id="logoutBtn"><i class='bx bx-log-out'></i> Déconnexion</button>
+            </div>
+        </form>
+    </div>
+    <div class="form-box register">
+        <form id="bookingForm">
+            <h1>Réservation</h1>
+            <div class="input-box"><input type="text" id="name" placeholder="Nom complet" maxlength="80" required><i class='bx bx-user'></i></div>
+            <div class="input-box"><input type="tel" id="phone" placeholder="Téléphone" maxlength="20" required><i class='bx bx-phone'></i></div>
+            <div class="input-box"><select id="service" required><option value="">Choisir un service</option><option value="Coupe homme">Coupe homme</option><option value="Coupe + Barbe">Coupe + Barbe</option><option value="Coupe Enfant">Coupe Enfant</option><option value="Soin Visage">Soin Visage</option></select><i class='bx bx-cut'></i></div>
+            <div style="display:flex;gap:10px"><div class="input-box" style="flex:1"><input type="date" id="date" required></div><div class="input-box" style="flex:1"><input type="time" id="time" required></div></div>
+            <button type="submit" class="btn"><i class='bx bx-calendar-check'></i> Réserver</button>
+            <p id="msg" class="message" aria-live="polite"></p>
+        </form>
+    </div>
+    <div class="toggle-box">
+        <div class="toggle-panel toggle-left">
+            <img src="logo1.png" style="width:280px;max-width:90%;height:auto;margin-bottom:18px;filter:drop-shadow(0 10px 25px rgba(18, 18, 185, 0.5));background:transparent;padding:0;border-radius:0">
+            <h1>Hello, Welcome!</h1><p>Gérez vos rendez-vous</p><button type="button" class="btn register-btn">Réservation</button>
+        </div>
+        <div class="toggle-panel toggle-right">
+        <img src="logo1.png" style="width:280px;max-width:90%;height:auto;margin-bottom:18px;filter:drop-shadow(0 10px 25px rgba(18, 18, 185, 0.5));background:transparent;padding:0;border-radius:0">
+        <h1>BARBER KING</h1><p>Déjà une réservation ?</p><button type="button" class="btn login-btn">Login</button>
+        </div>
+    </div>
+</div>
+<script>
+
+// ===== BARBER KING INTRO =====
+
+window.addEventListener("load", function () {
+
+    const intro = document.getElementById("intro");
+
+    if (!intro) return;
+
+    // Bloquer le scroll pendant l'introduction
+    document.body.style.overflow = "hidden";
+
+    // Masquer l'introduction après 3 secondes
+    setTimeout(function () {
+
+        intro.classList.add("hide");
+
+        document.body.style.overflow = "";
+
+        // Supprimer l'introduction après l'animation
+        setTimeout(function () {
+            intro.remove();
+        }, 800);
+
+    }, 3000);
+
+});
+
+
+"use strict";
+const container = document.querySelector(".container");
+document.querySelector(".register-btn").addEventListener("click",()=>{container.classList.add("active");});
+document.querySelector(".login-btn").addEventListener("click",()=>{container.classList.remove("active");});
+const bookingForm = document.getElementById("bookingForm");
+const adminForm = document.getElementById("adminForm");
+const loginContent = document.getElementById("loginContent");
+const adminPanel = document.getElementById("adminPanel");
+const adminMsg = document.getElementById("adminMsg");
+const msg = document.getElementById("msg");
+const dateInput = document.getElementById("date");
+function getToday(){const today=new Date();return new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().split("T")[0];}
+dateInput.min=getToday();
+const STORAGE_KEY="barberKingBookings";
+const CHANNEL_NAME="barber_king_channel";
+const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(CHANNEL_NAME) : null;
+
+function getBookings(){try{let raw=localStorage.getItem(STORAGE_KEY)||localStorage.getItem("barberBookings")||localStorage.getItem("allBookings")||localStorage.getItem("myBookings")||"[]";let d=JSON.parse(raw);return Array.isArray(d)?d:[];}catch{return[]}}
+function saveBookings(b){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(b));
+  localStorage.setItem("barberBookings",JSON.stringify(b));
+  localStorage.setItem("allBookings",JSON.stringify(b));
+  localStorage.setItem("myBookings",JSON.stringify(b));
+  if(bc) bc.postMessage({type:'update'});
+}
+
+// NOTIFICATION REAL-TIME
+function setupRealtime(){
+  window.addEventListener('storage', (e)=>{
+    if(!e.key || e.key===STORAGE_KEY || e.key.includes('barber') || e.key.includes('Booking')){
+      if(!adminPanel.classList.contains('hidden')) displayBookings();
+    }
+  });
+  if(bc){
+    bc.onmessage = (e)=>{
+      if(e.data && e.data.type==='update'){
+        if(!adminPanel.classList.contains('hidden')) displayBookings();
+      }
+    };
+  }
+  // polling au cas où
+  setInterval(()=>{
+    if(!adminPanel.classList.contains('hidden')) displayBookings();
+  }, 2000);
+}
+setupRealtime();
+
+bookingForm.addEventListener("submit",function(e){
+    e.preventDefault();
+    const name=document.getElementById("name").value.trim();
+    const phone=document.getElementById("phone").value.trim();
+    const service=document.getElementById("service").value;
+    const date=dateInput.value;const time=document.getElementById("time").value;
+    if(!name||!phone||!service||!date||!time){msg.style.color="red";msg.textContent="Veuillez remplir tous les champs.";return;}
+    if(date<getToday()){msg.style.color="red";msg.textContent="Veuillez choisir une date valide.";return;}
+    const bookings=getBookings();
+    if(bookings.some(b=>b.date===date&&b.time===time)){msg.style.color="red";msg.textContent="Ce créneau est déjà réservé.";return;}
+    const booking={id:Date.now(),name,phone,service,date,time};
+    bookings.push(booking);saveBookings(bookings);
+    msg.style.color="green";msg.textContent="Votre réservation est enregistrée avec succès !";
+    bookingForm.reset();dateInput.min=getToday();
+    // si admin ouvert
+    if(!adminPanel.classList.contains('hidden')) displayBookings();
+});
+const ADMIN_CODE="123456";
+adminForm.addEventListener("submit",function(e){
+    e.preventDefault();
+    const password=document.getElementById("adminPass").value;
+    if(password===ADMIN_CODE){loginContent.classList.add("hidden");adminPanel.classList.remove("hidden");displayBookings();}
+    else{adminMsg.style.color="red";adminMsg.textContent="Code administrateur incorrect.";}
+});
+function displayBookings(){
+    const bookings=getBookings();
+    const allList=document.getElementById("allList");
+    if(!allList) return;
+    document.getElementById("totalBookings").textContent="Total des réservations : "+bookings.length;
+    allList.replaceChildren();
+    if(bookings.length===0){allList.textContent="Aucune réservation pour le moment.";return;}
+    bookings.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+    bookings.forEach(booking=>{
+        const card=document.createElement("div");card.className="booking-card";
+        const details=document.createElement("p");details.textContent=`Nom: ${booking.name} | Tel: ${booking.phone} | ${booking.service} | ${booking.date} ${booking.time}`;
+        const deleteBtn=document.createElement("button");deleteBtn.type="button";deleteBtn.className="delete-btn";deleteBtn.textContent="Supprimer";
+        deleteBtn.addEventListener("click",function(){let updated=getBookings().filter(b=>b.id!==booking.id);saveBookings(updated);displayBookings();});
+        card.append(details,deleteBtn);allList.appendChild(card);
+    });
+}
+document.getElementById("logoutBtn").addEventListener("click",function(){adminPanel.classList.add("hidden");loginContent.classList.remove("hidden");document.getElementById("adminPass").value="";adminMsg.textContent="";});
+
+
+function getBookings() {
+    try {
+        const data = localStorage.getItem(STORAGE_KEY)
+            || localStorage.getItem("allBookings")
+            || "[]";
+
+        const bookings = JSON.parse(data);
+
+        return Array.isArray(bookings) ? bookings : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveBookings(bookings) {
+    const data = JSON.stringify(bookings);
+
+    localStorage.setItem(STORAGE_KEY, data);
+    localStorage.setItem("allBookings", data);
+    localStorage.setItem("barberBookings", data);
+    localStorage.setItem("myBookings", data);
+
+    if (bc) {
+        bc.postMessage({ type: "update" });
+    }
+
+    window.dispatchEvent(new Event("barberBookingsUpdated"));
+}
+
+</script>
+</body>
+</html>
