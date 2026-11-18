@@ -7,6 +7,7 @@
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+
 :root{--black:#111;--gold:#d4a017;--blue:#07082b}
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Poppins",sans-serif;text-decoration:none}
 body{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;background:var(--black)}
@@ -201,11 +202,15 @@ form{width:100%}
     }
 }
 
-/* =========================================
-   RESPONSIVE TABLETTE
-========================================= */
 
-@media screen and (max-width: 1024px) {
+
+/* ==========================================
+   BARBER KING - RESPONSIVE DESIGN
+   Couleurs originales conservées
+========================================== */
+
+/* TABLETTE : 769px à 1024px */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
 
     body {
         padding: 20px;
@@ -214,15 +219,30 @@ form{width:100%}
     .container {
         width: 90%;
         max-width: 850px;
-        height: 570px;
+        height: 560px;
+        border-radius: 25px;
     }
 
     .container h1 {
-        font-size: 27px;
+        font-size: 26px;
+    }
+
+    .container p {
+        font-size: 13px;
     }
 
     .form-box {
         padding: 25px;
+    }
+
+    .input-box {
+        margin: 15px 0;
+    }
+
+    .input-box input,
+    .input-box select {
+        padding: 12px 40px 12px 12px;
+        font-size: 13px;
     }
 
     .toggle-panel {
@@ -230,26 +250,22 @@ form{width:100%}
     }
 
     .toggle-panel h1 {
-        font-size: 27px;
+        font-size: 25px;
     }
 
     .toggle-panel p {
         font-size: 13px;
+        line-height: 1.5;
     }
 
-    .input-box input,
-    .input-box select {
-        font-size: 14px;
-        padding: 12px 40px 12px 12px;
+    #allList {
+        max-height: 260px;
     }
 }
 
 
-/* =========================================
-   PETITES TABLETTES
-========================================= */
-
-@media screen and (max-width: 768px) {
+/* PETITES TABLETTES : 651px à 768px */
+@media screen and (min-width: 651px) and (max-width: 768px) {
 
     body {
         padding: 15px;
@@ -257,51 +273,59 @@ form{width:100%}
 
     .container {
         width: 100%;
-        height: 650px;
+        height: 550px;
         border-radius: 22px;
     }
 
     .container h1 {
-        font-size: 24px;
-    }
-
-    .form-box {
-        padding: 20px;
-    }
-
-    .toggle-panel h1 {
         font-size: 23px;
     }
 
-    .toggle-panel p {
+    .container p {
         font-size: 12px;
-        line-height: 1.6;
+    }
+
+    .form-box {
+        padding: 18px;
     }
 
     .input-box {
-        margin: 14px 0;
+        margin: 13px 0;
     }
 
-    .btn {
-        height: 44px;
-        font-size: 14px;
+    .input-box input,
+    .input-box select {
+        padding: 11px 35px 11px 10px;
+        font-size: 12px;
     }
 
-    .social-icons a {
-        font-size: 19px;
-        padding: 8px;
+    .toggle-panel {
+        padding: 15px;
+    }
+
+    .toggle-panel h1 {
+        font-size: 22px;
+    }
+
+    .toggle-panel p {
+        font-size: 11px;
+    }
+
+    .toggle-panel .btn {
+        width: 125px;
+    }
+
+    .social-icons {
+        margin-top: 12px;
     }
 
     #allList {
-        max-height: 250px;
+        max-height: 230px;
     }
 }
 
 
-/* =========================================
-   TÉLÉPHONES
-========================================= */
-
+/* TÉLÉPHONES : jusqu'à 650px */
 @media screen and (max-width: 650px) {
 
     body {
@@ -314,24 +338,27 @@ form{width:100%}
         width: 100%;
         max-width: 450px;
         height: 750px;
-        border-radius: 20px;
+        border-radius: 22px;
     }
 
     .container h1 {
-        font-size: 23px;
+        font-size: 22px;
         margin-bottom: 10px;
     }
 
     .container p {
         font-size: 12px;
         margin: 8px 0;
+        line-height: 1.5;
     }
+
+    /* FORMULAIRES */
 
     .form-box {
         width: 100%;
         height: 70%;
-        bottom: 0;
         right: 0;
+        bottom: 0;
         padding: 20px;
     }
 
@@ -339,6 +366,8 @@ form{width:100%}
         right: 0;
         bottom: 30%;
     }
+
+    /* PANNEAU BLEU */
 
     .toggle-box::before {
         left: 0;
@@ -352,6 +381,8 @@ form{width:100%}
         left: 0;
         top: 70%;
     }
+
+    /* PANNEAUX ANIMÉS */
 
     .toggle-panel {
         width: 100%;
@@ -384,16 +415,17 @@ form{width:100%}
     }
 
     .toggle-panel p {
-        font-size: 12px;
-        margin: 5px 0;
+        font-size: 11px;
     }
 
     .toggle-panel .btn {
-        width: 130px;
+        width: 135px;
         height: 40px;
         margin-top: 8px;
         font-size: 13px;
     }
+
+    /* CHAMPS */
 
     .input-box {
         margin: 13px 0;
@@ -409,10 +441,14 @@ form{width:100%}
         font-size: 18px;
     }
 
+    /* BOUTONS */
+
     .btn {
         height: 43px;
-        font-size: 14px;
+        font-size: 13px;
     }
+
+    /* RÉSEAUX SOCIAUX */
 
     .social-icons {
         margin-top: 12px;
@@ -423,12 +459,10 @@ form{width:100%}
         font-size: 18px;
     }
 
-    .message {
-        font-size: 12px;
-    }
+    /* ADMINISTRATION */
 
     #allList {
-        max-height: 220px;
+        max-height: 210px;
     }
 
     .booking-card {
@@ -440,13 +474,21 @@ form{width:100%}
         font-size: 11px;
         padding: 6px 10px;
     }
+
+    /* INTRO */
+
+    .intro-inner {
+        width: 90%;
+    }
+
+    .intro-text {
+        font-size: clamp(1.6rem, 8vw, 2.3rem);
+        gap: 7px;
+    }
 }
 
 
-/* =========================================
-   PETITS TÉLÉPHONES
-========================================= */
-
+/* PETITS TÉLÉPHONES : 360px et moins */
 @media screen and (max-width: 380px) {
 
     body {
@@ -454,8 +496,8 @@ form{width:100%}
     }
 
     .container {
-        height: 700px;
-        border-radius: 16px;
+        height: 710px;
+        border-radius: 18px;
     }
 
     .container h1 {
@@ -467,7 +509,7 @@ form{width:100%}
     }
 
     .form-box {
-        padding: 14px;
+        padding: 13px;
     }
 
     .toggle-panel {
@@ -475,11 +517,11 @@ form{width:100%}
     }
 
     .toggle-panel h1 {
-        font-size: 19px;
+        font-size: 18px;
     }
 
     .toggle-panel p {
-        font-size: 11px;
+        font-size: 10px;
     }
 
     .input-box {
@@ -493,50 +535,26 @@ form{width:100%}
     }
 
     .btn {
-        height: 40px;
+        height: 39px;
         font-size: 12px;
     }
 
     .social-icons a {
-        font-size: 16px;
         padding: 6px;
+        font-size: 16px;
     }
 }
 
 
-/* =========================================
-   INTRO RESPONSIVE
-========================================= */
-
-@media screen and (max-width: 650px) {
-
-    .intro-inner {
-        width: 90%;
-    }
-
-    .intro-text {
-        font-size: clamp(1.6rem, 8vw, 2.3rem);
-        gap: 7px;
-    }
-
-    .intro-bar {
-        margin-top: 18px;
-    }
-}
-
-
-/* =========================================
-   ÉCRANS TRÈS LARGES
-========================================= */
-
+/* GRANDS ÉCRANS */
 @media screen and (min-width: 1400px) {
 
     .container {
         width: 900px;
         height: 600px;
     }
-
 }
+
 
 
 </style>
