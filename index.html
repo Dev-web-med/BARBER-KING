@@ -504,6 +504,62 @@ href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     }
 
 }
+.stylish-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    text-align: center;
+    color: #D4AF37;
+    font-size: 30px;
+    font-weight: bold;
+    white-space: nowrap;
+    width: 100%;
+    margin: 30px auto;
+}
+
+.stylish-title i {
+    color: #D4AF37;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+/* Tablette */
+@media (max-width: 768px) {
+    .stylish-title {
+        font-size: 24px;
+        gap: 10px;
+    }
+
+    .stylish-title i {
+        font-size: 23px;
+    }
+}
+
+/* Téléphone */
+@media (max-width: 480px) {
+    .stylish-title {
+        font-size: 17px;
+        gap: 6px;
+        margin: 20px auto;
+    }
+
+    .stylish-title i {
+        font-size: 19px;
+    }
+}
+
+/* Très petits téléphones */
+@media (max-width: 360px) {
+    .stylish-title {
+        font-size: 14px;
+        gap: 4px;
+    }
+
+    .stylish-title i {
+        font-size: 16px;
+    }
+}
 
 </style>
 
@@ -616,4 +672,4 @@ const barberSwiper = new Swiper(".barberSwiper", {
 </footer>
   <script src="script.js"></script>
 </body>
-</html>        
+</html>      
