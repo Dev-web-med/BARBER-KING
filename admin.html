@@ -629,109 +629,111 @@ function addAutoReservation() {
   <ul class="bk-list" id="bkList"></ul>
 </div>
 
-<script>
-  const bkSongs = [];
-  for(let i=1; i<=200; i++){
-    bkSongs.push({ title: "Music " + i, file: "music/sang 1" + i + "mp3" });
-  }
-  let bkFiltered = [...bkSongs];
-  let bkIndex = 0;
-  let bkIsStopped = false;
 
-  const bkPlayer = document.getElementById('bkPlayer');
-  const bkList = document.getElementById('bkList');
-  const bkNow = document.getElementById('bkNow');
-  const bkPlayBtn = document.getElementById('bkPlayBtn');
-  const bkBar = document.getElementById('bkBar');
-  const bkProgress = document.getElementById('bkProgress');
-  const bkCurrent = document.getElementById('bkCurrent');
-  const bkDuration = document.getElementById('bkDuration');
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, deleteDoc, doc, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  function bkFormat(s){ if(!s || isNaN(s)) return "0:00"; let m=Math.floor(s/60); let sec=Math.floor(s%60); return m+":"+(sec<10?"0"+sec:sec); }
+const firebaseConfig = {
+  apiKey: "AIzaSyD4It5yeetfMYcUTGWiFhaw6XBRcX4QhCw",
+  authDomain: "barber-king-48.firebaseapp.com",
+  projectId: "barber-king-48",
+  storageBucket: "barber-king-48.firebasestorage.app",
+  messagingSenderId: "842889696983",
+  appId: "1:842889696983:web:1e5b7d8adba5b9419c0292"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  function bkRender(){
-    bkList.innerHTML = "";
-    bkFiltered.forEach((song)=>{
-      const realIndex = bkSongs.indexOf(song);
-      const li = document.createElement('li');
-      li.innerHTML = `<span>${realIndex+1}. ${song.title}</span><small>▶</small>`;
-      if(realIndex === bkIndex) li.classList.add('active');
-      li.onclick = ()=> bkPlay(realIndex);
-      bkList.appendChild(li);
-    });
-  }
+let allBookings = []; // غادي نخزنو هنا باش الحذف يخدم
 
-  function bkPlay(i){
-    bkIndex = i;
-    bkIsStopped = false;
-    bkPlayer.src = bkSongs[i].file;
-    bkNow.textContent = bkSongs[i].title;
-    bkPlayer.play();
-    bkPlayBtn.textContent = "⏸";
-    bkRender();
-  }
-
-function bkToggle(){
-    if(!bkPlayer.src){ bkPlay(0); return; }
-    if(bkPlayer.paused){
-      bkIsStopped = false;
-      bkPlayer.play();
-      bkPlayBtn.textContent = "⏸";
-    } else {
-      bkPlayer.pause();
-      bkPlayBtn.textContent = "▶";
-    }
-  }
-
-  function bkStop(){
-    bkIsStopped = true;
-    bkPlayer.pause();
-    bkPlayer.currentTime = 0;
-    bkBar.style.width = "0%";
-    bkCurrent.textContent = "0:00";
-    bkPlayBtn.textContent = "▶";
-  }
-
-
-
-  function bkNext(){
-    if(bkIsStopped) return;
-    bkIndex = (bkIndex+1) % bkSongs.length;
-    bkPlay(bkIndex);
-  }
-
-  function bkPrev(){
-    bkIndex = (bkIndex-1 + bkSongs.length) % bkSongs.length;
-    bkPlay(bkIndex);
-  }
-
-  // 1 مور وحدة
-  bkPlayer.onended = ()=> { if(!bkIsStopped) bkNext(); };
-
-  // إلا شي أغنية ناقصة، دوز اللي موراها - ولكن إلا كنتي داير سطوب مادوزش
-  bkPlayer.onerror = ()=> { if(!bkIsStopped) setTimeout(bkNext, 500); };
-
-  bkPlayer.ontimeupdate = ()=>{
-    if(bkPlayer.duration){
-      bkBar.style.width = (bkPlayer.currentTime / bkPlayer.duration * 100) + "%";
-      bkCurrent.textContent = bkFormat(bkPlayer.currentTime);
-      bkDuration.textContent = bkFormat(bkPlayer.duration);
-    }
-  };
-
-  bkProgress.onclick = (e)=>{
-    const r = bkProgress.getBoundingClientRect();
-    if(bkPlayer.duration) bkPlayer.currentTime = ((e.clientX - r.left) / r.width) * bkPlayer.duration;
-  };
-
-  document.getElementById('bkSearch').addEventListener('input', e=>{
-    const q = e.target.value.toLowerCase();
-    bkFiltered = bkSongs.filter(s=> s.title.toLowerCase().includes(q));
-    bkRender();
+// ===== عرض الحجوزات من Firebase - Live =====
+const q = query(collection(db, "bookings"), orderBy("createdAt", "desc"));
+onSnapshot(q, (snapshot) => {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+  allBookings = [];
+  snapshot.forEach((d) => {
+    const r = d.data();
+    allBookings.push({ firestoreId: d.id, ...r });
   });
 
-  bkRender();
-  bkNow.textContent = bkSongs[0].title;
+  if (allBookings.length === 0) {
+    list.innerHTML = `<tr><td colspan="6" style="text-align:center">Aucune réservation enregistrée.</td></tr>`;
+    return;
+  }
+
+  allBookings.forEach((r, index) => {
+    const tr = document.createElement("tr");
+    const values = [
+      r.nom || r.name || "",
+      r.telephone || r.phone || "",
+      r.service || "",
+      r.date ? new Date(r.date).toLocaleString("fr-FR") : "",
+      r.dateCreation ? new Date(r.dateCreation).toLocaleString("fr-FR") : (r.createdAt ? new Date(r.createdAt.seconds*1000).toLocaleString("fr-FR") : "")
+    ];
+    values.forEach(v => { const td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
+    const tdAction = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.textContent = "Supprimer"; btn.className = "del";
+    btn.onclick = () => delOne(index);
+    tdAction.appendChild(btn); tr.appendChild(tdAction);
+    list.appendChild(tr);
+  });
+  console.log("Total:", allBookings.length);
+});
+
+// ===== حذف واحد =====
+window.delOne = async (index) => {
+  const r = allBookings[index];
+  if (!r) return;
+  if (confirm("Supprimer cette réservation ?")) {
+    await deleteDoc(doc(db, "bookings", r.firestoreId));
+  }
+};
+
+// ===== حذف الكل =====
+window.clearAll = async () => {
+  if (!confirm("Supprimer toutes les réservations ?")) return;
+  const snap = await getDocs(collection(db, "bookings"));
+  for (const d of snap.docs) { await deleteDoc(doc(db, "bookings", d.id)); }
+  localStorage.removeItem("barberKingReservations");
+  localStorage.removeItem("allBookings");
+};
+
+// ===== زر Auto Admine - دابا كيسيفط لـ Firebase =====
+const AUTO_COUNTER_KEY = "barberKingAutoCounter";
+function getNextAutoPhone() {
+  let counter = parseInt(localStorage.getItem(AUTO_COUNTER_KEY) || "0");
+  if (counter === 0) {
+    let max = 0;
+    allBookings.forEach(r => {
+      if (r.nom === "auto admine" && r.telephone) {
+        let num = parseInt(r.telephone.replace(/\D/g, ""));
+        if (!isNaN(num) && num > max) max = num;
+      }
+    });
+    counter = max > 0 ? max : 600000000;
+  }
+  counter++;
+  localStorage.setItem(AUTO_COUNTER_KEY, counter);
+  return "0" + counter;
+}
+window.addAutoReservation = async () => {
+  const now = new Date();
+  const nowISO = now.toISOString();
+  await addDoc(collection(db, "bookings"), {
+    id: Date.now(),
+    nom: "auto admine",
+    telephone: getNextAutoPhone(),
+    service: "Coupe+Barber",
+    date: nowISO,
+    statut: "En attente",
+    dateCreation: nowISO,
+    createdAt: serverTimestamp()
+  });
+};
+
 </script>
 
 </body>
