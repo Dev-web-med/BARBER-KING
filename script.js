@@ -36,7 +36,7 @@ const db = getFirestore(app);
    2. PARAMÈTRES
    ========================================== */
 
-const ADMIN_CODE = "KING2026";
+const ADMIN_CODE = "KinG2O26";
 const ADMIN_PAGE = "admin.html";
 
 const STORAGE_KEY = "barberKingReservations";
