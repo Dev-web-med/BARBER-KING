@@ -352,278 +352,23 @@ document.getElementById("adminCode").addEventListener("keypress", function(e){
 <h2>📅 Liste des Réservations</h2>
 <button class="clear" onclick="clearAll()">🗑️ Supprimer Tout</button>
 <button class="btn-auto" onclick="addAutoReservation()">➕ Auto Admine</button>
-<table>
-<tr><th>Nom</th><th>Téléphone</th><th>Service</th><th>Date RDV</th><th>Date Réservation</th><th>Action</th></tr>
-<tbody id="list"></tbody>
-</table>
-
-<script>
-"use strict";
-
-// ========================================
-// BARBER KING - ADMINISTRATION
-// ========================================
-
-const STORAGE_KEY = "barberKingReservations";
-const OLD_STORAGE_KEY = "allBookings";
-
-// Récupérer les deux listes
-function getAllReservations() {
-
-    let current = [];
-    let old = [];
-
-    try {
-        current = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-        old = JSON.parse(localStorage.getItem(OLD_STORAGE_KEY) || "[]");
-
-        if (!Array.isArray(current)) current = [];
-        if (!Array.isArray(old)) old = [];
-
-    } catch (error) {
-        console.error("Erreur de lecture :", error);
-    }
-
-    // Fusionner les deux listes
-    const all = [...current, ...old];
-
-    // Éviter les doublons
-    const unique = [];
-
-    all.forEach((r, i) => {
-
-        const exists = unique.some(item =>
-            item.id && r.id
-                ? item.id === r.id
-                : item.nom === (r.nom || r.name) &&
-                  item.telephone === (r.telephone || r.phone) &&
-                  item.date === (r.date || r.time)
-        );
-
-        if (!exists) {
-            unique.push({
-                id: r.id || Date.now() + i,
-                nom: r.nom || r.name || "",
-                telephone: r.telephone || r.phone || "",
-                service: r.service || "",
-                date: r.date || r.time || "",
-                dateCreation: r.dateCreation || r.date || ""
-            });
-        }
-    });
-
-    return unique;
-}
-
-
-// ========================================
-// AFFICHER LES RESERVATIONS
-// ========================================
-
-function load() {
-
-    const list = document.getElementById("list");
-
-    if (!list) return;
-
-    const reservations = getAllReservations();
-
-    list.innerHTML = "";
-
-    if (reservations.length === 0) {
-
-        list.innerHTML = `
+<div class="table-container">
+    <table>
+        <thead>
             <tr>
-                <td colspan="6" style="text-align:center">
-                    Aucune réservation enregistrée.
-                </td>
+                <th>Nom</th>
+                <th>Téléphone</th>
+                <th>Service</th>
+                <th>Date RDV</th>
+                <th>Date Réservation</th>
+                <th>Action</th>
             </tr>
-        `;
-
-        return;
-    }
-
-    reservations.forEach((r, index) => {
-
-        const tr = document.createElement("tr");
-
-        const values = [
-            r.nom,
-            r.telephone,
-            r.service,
-            r.date ? new Date(r.date).toLocaleString("fr-FR") : "",
-            r.dateCreation
-                ? new Date(r.dateCreation).toLocaleString("fr-FR")
-                : ""
-        ];
-
-        values.forEach(value => {
-
-            const td = document.createElement("td");
-
-            td.textContent = value;
-
-            tr.appendChild(td);
-
-        });
-
-        const tdAction = document.createElement("td");
-
-        const button = document.createElement("button");
-
-        button.textContent = "Supprimer";
-
-        button.className = "del";
-
-        button.onclick = () => delOne(index);
-
-        tdAction.appendChild(button);
-
-        tr.appendChild(tdAction);
-
-        list.appendChild(tr);
-
-    });
-
-    console.log("Total réservations :", reservations.length);
-}
+        </thead>
+        <tbody id="list"></tbody>
+    </table>
+</div>
 
 
-// ========================================
-// ENREGISTRER LES DEUX LISTES
-// ========================================
-
-function saveAllReservations(reservations) {
-
-    // Format principal : script.js actuel
-    const current = reservations.map(r => ({
-        id: r.id,
-        nom: r.nom,
-        telephone: r.telephone,
-        service: r.service,
-        date: r.date,
-        statut: r.statut || "En attente",
-        dateCreation: r.dateCreation
-    }));
-
-    // Ancien format : allBookings
-    const old = reservations.map(r => ({
-        id: r.id,
-        name: r.nom,
-        phone: r.telephone,
-        service: r.service,
-        time: r.date,
-        date: r.dateCreation
-    }));
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
-    localStorage.setItem(OLD_STORAGE_KEY, JSON.stringify(old));
-}
-
-
-// ========================================
-// SUPPRIMER UNE RESERVATION
-// ========================================
-
-function delOne(index) {
-
-    const reservations = getAllReservations();
-
-    if (!reservations[index]) return;
-
-    if (confirm("Supprimer cette réservation ?")) {
-
-        reservations.splice(index, 1);
-
-        saveAllReservations(reservations);
-
-        load();
-    }
-}
-
-
-// ========================================
-// SUPPRIMER TOUTES LES RESERVATIONS
-// ========================================
-
-function clearAll() {
-
-    if (confirm("Supprimer toutes les réservations ?")) {
-
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(OLD_STORAGE_KEY);
-
-        load();
-    }
-}
-
-
-// ========================================
-// ACTUALISATION AUTOMATIQUE
-// ========================================
-
-window.addEventListener("storage", function(event) {
-
-    if (
-        event.key === STORAGE_KEY ||
-        event.key === OLD_STORAGE_KEY
-    ) {
-        load();
-    }
-});
-
-
-// ========================================
-// INITIALISATION
-// ========================================
-
-load();
-// ========================================
-// BOUTON AUTO ADMINE
-// ========================================
-const AUTO_COUNTER_KEY = "barberKingAutoCounter";
-
-function getNextAutoPhone() {
-    let counter = parseInt(localStorage.getItem(AUTO_COUNTER_KEY) || "0");
-
-    if (counter === 0) {
-        const all = getAllReservations();
-        let max = 0;
-        all.forEach(r => {
-            if (r.nom === "auto admine" && r.telephone) {
-                let num = parseInt(r.telephone.replace(/\D/g, ""));
-                if (!isNaN(num) && num > max) max = num;
-            }
-        });
-        counter = max > 0 ? max : 600000000;
-    }
-
-    counter++;
-    localStorage.setItem(AUTO_COUNTER_KEY, counter);
-    return "0" + counter; // 0600000001, 0600000002...
-}
-
-function addAutoReservation() {
-    const now = new Date();
-    const nowISO = now.toISOString();
-
-    const newRes = {
-        id: Date.now(),
-        nom: "auto admine",
-        telephone: getNextAutoPhone(),
-        service: "Coupe+Barber",
-        date: nowISO, // Date RDV = AUJOURD'HUI
-        statut: "En attente",
-        dateCreation: nowISO // Date Réservation = AUJOURD'HUI
-    };
-
-    const all = getAllReservations();
-    all.push(newRes);
-    saveAllReservations(all);
-    load();
-}
-
-</SCript>
 <!-- ===== PLAYLIST 200 AGHANI - BARBER KING - VERSION MSHHA ===== -->
 <style>
   .bk-playlist-box{max-width:600px;margin:30px auto;background:#111;border:1px solid #c9a227;border-radius:18px;padding:20px;font-family:Arial;color:#fff}
@@ -663,111 +408,658 @@ function addAutoReservation() {
 </div>
 
 
+
 <script type="module">
+
+// =============================================
+// 1. FIREBASE - CONFIGURATION
+// =============================================
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, query, orderBy, onSnapshot, deleteDoc, doc, addDoc, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+    getFirestore,
+    collection,
+    onSnapshot,
+    deleteDoc,
+    doc,
+    addDoc,
+    getDocs,
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD4It5yeetfMYcUTGWiFhaw6XBRcX4QhCw",
-  authDomain: "barber-king-48.firebaseapp.com",
-  projectId: "barber-king-48",
-  storageBucket: "barber-king-48.firebasestorage.app",
-  messagingSenderId: "842889696983",
-  appId: "1:842889696983:web:1e5b7d8adba5b9419c0292"
+    apiKey: "AIzaSyD4It5yeetfMYcUTGWiFhaw6XBRcX4QhCw",
+    authDomain: "barber-king-48.firebaseapp.com",
+    projectId: "barber-king-48",
+    storageBucket: "barber-king-48.firebasestorage.app",
+    messagingSenderId: "842889696983",
+    appId: "1:842889696983:web:1e5b7d8adba5b9419c0292"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let allBookings = []; // غادي نخزنو هنا باش الحذف يخدم
+const bookingsRef = collection(db, "bookings");
 
-// ===== عرض الحجوزات من Firebase - Live =====
-const q = query(collection(db, "bookings"), orderBy("createdAt", "desc"));
-onSnapshot(q, (snapshot) => {
-  const list = document.getElementById("list");
-  list.innerHTML = "";
-  allBookings = [];
-  snapshot.forEach((d) => {
-    const r = d.data();
-    allBookings.push({ firestoreId: d.id, ...r });
-  });
+let allBookings = [];
 
-  if (allBookings.length === 0) {
-    list.innerHTML = `<tr><td colspan="6" style="text-align:center">Aucune réservation enregistrée.</td></tr>`;
-    return;
-  }
 
-  allBookings.forEach((r, index) => {
-    const tr = document.createElement("tr");
-    const values = [
-      r.nom || r.name || "",
-      r.telephone || r.phone || "",
-      r.service || "",
-      r.date ? new Date(r.date).toLocaleString("fr-FR") : "",
-      r.dateCreation ? new Date(r.dateCreation).toLocaleString("fr-FR") : (r.createdAt ? new Date(r.createdAt.seconds*1000).toLocaleString("fr-FR") : "")
-    ];
-    values.forEach(v => { const td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
-    const tdAction = document.createElement("td");
-    const btn = document.createElement("button");
-    btn.textContent = "Supprimer"; btn.className = "del";
-    btn.onclick = () => delOne(index);
-    tdAction.appendChild(btn); tr.appendChild(tdAction);
-    list.appendChild(tr);
-  });
-  console.log("Total:", allBookings.length);
+// =============================================
+// 2. FORMATAGE DES DATES
+// =============================================
+
+function formatDate(value) {
+
+    if (!value) return "Non renseignée";
+
+    let date;
+
+    if (value && typeof value.toDate === "function") {
+        date = value.toDate();
+    } else {
+        date = new Date(value);
+    }
+
+    if (isNaN(date.getTime())) {
+        return "Non renseignée";
+    }
+
+    return date.toLocaleString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+
+// =============================================
+// 3. AFFICHAGE DES RESERVATIONS
+// =============================================
+
+function displayBookings() {
+
+    const list = document.getElementById("list");
+
+    list.innerHTML = "";
+
+    if (allBookings.length === 0) {
+
+        list.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center;padding:20px">
+                    Aucune réservation enregistrée.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    allBookings.forEach((r, index) => {
+
+        const tr = document.createElement("tr");
+
+        const values = [
+            r.nom || r.name || "",
+            r.telephone || r.phone || "",
+            r.service || "",
+            formatDate(r.date),
+            formatDate(r.dateCreation || r.createdAt)
+        ];
+
+        values.forEach(value => {
+
+            const td = document.createElement("td");
+
+            td.textContent = value;
+
+            tr.appendChild(td);
+
+        });
+
+        const tdAction = document.createElement("td");
+
+        const btn = document.createElement("button");
+
+        btn.textContent = "🗑️ Supprimer";
+
+        btn.className = "del";
+
+        btn.addEventListener("click", () => {
+            window.delOne(index);
+        });
+
+        tdAction.appendChild(btn);
+
+        tr.appendChild(tdAction);
+
+        list.appendChild(tr);
+
+    });
+
+}
+
+
+// =============================================
+// 4. FIREBASE - ACTUALISATION EN TEMPS RÉEL
+// =============================================
+
+onSnapshot(bookingsRef, (snapshot) => {
+
+    allBookings = [];
+
+    snapshot.forEach(documentSnapshot => {
+
+        allBookings.push({
+            firestoreId: documentSnapshot.id,
+            ...documentSnapshot.data()
+        });
+
+    });
+
+    // Trier les réservations par date de création
+    allBookings.sort((a, b) => {
+
+        const dateA = a.createdAt?.toMillis?.() ||
+                      new Date(a.dateCreation || 0).getTime();
+
+        const dateB = b.createdAt?.toMillis?.() ||
+                      new Date(b.dateCreation || 0).getTime();
+
+        return dateB - dateA;
+
+    });
+
+    displayBookings();
+
+    console.log("Réservations Firebase :", allBookings.length);
+
+}, (error) => {
+
+    console.error("Erreur Firebase :", error);
+
+    document.getElementById("list").innerHTML = `
+        <tr>
+            <td colspan="6" style="text-align:center;color:#ef4444">
+                Erreur de chargement Firebase.
+            </td>
+        </tr>
+    `;
+
 });
 
-// ===== حذف واحد =====
-window.delOne = async (index) => {
-  const r = allBookings[index];
-  if (!r) return;
-  if (confirm("Supprimer cette réservation ?")) {
-    await deleteDoc(doc(db, "bookings", r.firestoreId));
-  }
+
+// =============================================
+// 5. SUPPRIMER UNE RESERVATION
+// =============================================
+
+window.delOne = async function(index) {
+
+    const reservation = allBookings[index];
+
+    if (!reservation) return;
+
+    if (!confirm("Voulez-vous supprimer cette réservation ?")) {
+        return;
+    }
+
+    try {
+
+        await deleteDoc(
+            doc(db, "bookings", reservation.firestoreId)
+        );
+
+        console.log("Réservation supprimée.");
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Impossible de supprimer cette réservation.");
+
+    }
+
 };
 
-// ===== حذف الكل =====
-window.clearAll = async () => {
-  if (!confirm("Supprimer toutes les réservations ?")) return;
-  const snap = await getDocs(collection(db, "bookings"));
-  for (const d of snap.docs) { await deleteDoc(doc(db, "bookings", d.id)); }
-  localStorage.removeItem("barberKingReservations");
-  localStorage.removeItem("allBookings");
+
+// =============================================
+// 6. SUPPRIMER TOUTES LES RESERVATIONS
+// =============================================
+
+window.clearAll = async function() {
+
+    if (!confirm("Attention ! Supprimer toutes les réservations ?")) {
+        return;
+    }
+
+    try {
+
+        const snapshot = await getDocs(bookingsRef);
+
+        await Promise.all(
+            snapshot.docs.map(item =>
+                deleteDoc(doc(db, "bookings", item.id))
+            )
+        );
+
+        alert("Toutes les réservations ont été supprimées.");
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Erreur lors de la suppression.");
+
+    }
+
 };
 
-// ===== زر Auto Admine - دابا كيسيفط لـ Firebase =====
+
+// =============================================
+// 7. AUTO ADMIN - NUMERO AUTOMATIQUE
+// =============================================
+
 const AUTO_COUNTER_KEY = "barberKingAutoCounter";
+
 function getNextAutoPhone() {
-  let counter = parseInt(localStorage.getItem(AUTO_COUNTER_KEY) || "0");
-  if (counter === 0) {
-    let max = 0;
-    allBookings.forEach(r => {
-      if (r.nom === "auto admine" && r.telephone) {
-        let num = parseInt(r.telephone.replace(/\D/g, ""));
-        if (!isNaN(num) && num > max) max = num;
-      }
-    });
-    counter = max > 0 ? max : 600000000;
-  }
-  counter++;
-  localStorage.setItem(AUTO_COUNTER_KEY, counter);
-  return "0" + counter;
+
+    let counter = parseInt(
+        localStorage.getItem(AUTO_COUNTER_KEY) || "600000000",
+        10
+    );
+
+    if (!Number.isSafeInteger(counter) || counter < 600000000) {
+        counter = 600000000;
+    }
+
+    counter++;
+
+    localStorage.setItem(
+        AUTO_COUNTER_KEY,
+        String(counter)
+    );
+
+    return "0" + counter;
+
 }
-window.addAutoReservation = async () => {
-  const now = new Date();
-  const nowISO = now.toISOString();
-  await addDoc(collection(db, "bookings"), {
-    id: Date.now(),
-    nom: "auto admine",
-    telephone: getNextAutoPhone(),
-    service: "Coupe+Barber",
-    date: nowISO,
-    statut: "En attente",
-    dateCreation: nowISO,
-    createdAt: serverTimestamp()
-  });
+
+
+// =============================================
+// 8. AJOUTER UNE RESERVATION AUTOMATIQUE
+// =============================================
+
+window.addAutoReservation = async function() {
+
+    try {
+
+        const now = new Date();
+
+        const nowISO = now.toISOString();
+
+        const newReservation = {
+
+            nom: "auto admine",
+
+            telephone: getNextAutoPhone(),
+
+            service: "Coupe+Barber",
+
+            date: nowISO,
+
+            statut: "En attente",
+
+            dateCreation: nowISO,
+
+            createdAt: serverTimestamp()
+
+        };
+
+        await addDoc(bookingsRef, newReservation);
+
+        alert("Réservation automatique ajoutée avec succès !");
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Erreur lors de l'ajout de la réservation.");
+
+    }
+
 };
+
+
+// =============================================
+// 9. PLAYLIST BARBER KING
+// =============================================
+
+const bkSongs = [];
+
+for (let i = 1; i <= 200; i++) {
+
+    bkSongs.push({
+
+        title: "Music " + i,
+
+        // Exemple : music/sang 1.mp3
+    file: `music/sang ${i}.mp3`
+
+    });
+
+}
+
+let bkFiltered = [...bkSongs];
+
+let bkIndex = 0;
+
+let bkIsStopped = false;
+
+
+const bkPlayer = document.getElementById("bkPlayer");
+
+const bkList = document.getElementById("bkList");
+
+const bkNow = document.getElementById("bkNow");
+
+const bkPlayBtn = document.getElementById("bkPlayBtn");
+
+const bkBar = document.getElementById("bkBar");
+
+const bkProgress = document.getElementById("bkProgress");
+
+const bkCurrent = document.getElementById("bkCurrent");
+
+const bkDuration = document.getElementById("bkDuration");
+
+const bkSearch = document.getElementById("bkSearch");
+
+
+// =============================================
+// 10. FORMATAGE DU TEMPS
+// =============================================
+
+function bkFormat(seconds) {
+
+    if (!Number.isFinite(seconds)) return "0:00";
+
+    const min = Math.floor(seconds / 60);
+
+    const sec = Math.floor(seconds % 60);
+
+    return min + ":" + String(sec).padStart(2, "0");
+
+}
+
+
+// =============================================
+// 11. AFFICHER LES MUSIQUES
+// =============================================
+
+function bkRender() {
+
+    bkList.innerHTML = "";
+
+    bkFiltered.forEach(song => {
+
+        const realIndex = bkSongs.indexOf(song);
+
+        const li = document.createElement("li");
+
+        const title = document.createElement("span");
+
+        title.textContent = `${realIndex + 1}. ${song.title}`;
+
+        const play = document.createElement("small");
+
+        play.textContent = "▶";
+
+        li.appendChild(title);
+
+        li.appendChild(play);
+
+        if (realIndex === bkIndex) {
+            li.classList.add("active");
+        }
+
+        li.addEventListener("click", () => {
+            bkPlay(realIndex);
+        });
+
+        bkList.appendChild(li);
+
+    });
+
+}
+
+
+// =============================================
+// 12. LECTURE MUSIQUE
+// =============================================
+
+async function bkPlay(index) {
+
+    if (index < 0 || index >= bkSongs.length) return;
+
+    bkIndex = index;
+
+    bkIsStopped = false;
+
+    bkPlayer.src = bkSongs[index].file;
+
+    bkNow.textContent = bkSongs[index].title;
+
+    bkPlayBtn.textContent = "⏸";
+
+    bkBar.style.width = "0%";
+
+    bkCurrent.textContent = "0:00";
+
+    bkDuration.textContent = "0:00";
+
+    bkRender();
+
+    try {
+
+        await bkPlayer.play();
+
+    } catch (error) {
+
+        console.error("Erreur de lecture :", error);
+
+        bkPlayBtn.textContent = "▶";
+
+        bkNow.textContent = "Impossible de lire : " + bkSongs[index].title;
+
+    }
+
+}
+
+
+// =============================================
+// 13. PLAY / PAUSE
+// =============================================
+
+async function bkToggle() {
+
+    if (!bkPlayer.src) {
+
+        await bkPlay(0);
+
+        return;
+
+    }
+
+    if (bkPlayer.paused) {
+
+        bkIsStopped = false;
+
+        try {
+
+            await bkPlayer.play();
+
+            bkPlayBtn.textContent = "⏸";
+
+        } catch (error) {
+
+            console.error(error);
+
+            bkPlayBtn.textContent = "▶";
+
+        }
+
+    } else {
+
+        bkPlayer.pause();
+
+        bkPlayBtn.textContent = "▶";
+
+    }
+
+}
+
+
+// =============================================
+// 14. STOP
+// =============================================
+
+function bkStop() {
+
+    bkIsStopped = true;
+
+    bkPlayer.pause();
+
+    bkPlayer.currentTime = 0;
+
+    bkBar.style.width = "0%";
+
+    bkCurrent.textContent = "0:00";
+
+    bkPlayBtn.textContent = "▶";
+
+}
+
+
+// =============================================
+// 15. MUSIQUE SUIVANTE
+// =============================================
+
+function bkNext() {
+
+    const next = (bkIndex + 1) % bkSongs.length;
+
+    bkPlay(next);
+
+}
+
+
+// =============================================
+// 16. MUSIQUE PRECEDENTE
+// =============================================
+
+function bkPrev() {
+
+    const previous =
+        (bkIndex - 1 + bkSongs.length) % bkSongs.length;
+
+    bkPlay(previous);
+
+}
+
+
+// =============================================
+// 17. LECTURE AUTOMATIQUE
+// =============================================
+
+bkPlayer.addEventListener("ended", () => {
+
+    if (!bkIsStopped) {
+        bkNext();
+    }
+
+});
+
+
+// =============================================
+// 18. PROGRESSION MUSICALE
+// =============================================
+
+bkPlayer.addEventListener("timeupdate", () => {
+
+    if (bkPlayer.duration) {
+
+        const percent =
+            (bkPlayer.currentTime / bkPlayer.duration) * 100;
+
+        bkBar.style.width = percent + "%";
+
+        bkCurrent.textContent = bkFormat(bkPlayer.currentTime);
+
+        bkDuration.textContent = bkFormat(bkPlayer.duration);
+
+    }
+
+});
+
+
+// =============================================
+// 19. BARRE DE PROGRESSION CLIQUABLE
+// =============================================
+
+bkProgress.addEventListener("click", event => {
+
+    if (!Number.isFinite(bkPlayer.duration)) return;
+
+    const rect = bkProgress.getBoundingClientRect();
+
+    const percent = Math.max(
+        0,
+        Math.min(1, (event.clientX - rect.left) / rect.width)
+    );
+
+    bkPlayer.currentTime = percent * bkPlayer.duration;
+
+});
+
+
+// =============================================
+// 20. RECHERCHE MUSICALE
+// =============================================
+
+bkSearch.addEventListener("input", event => {
+
+    const search = event.target.value.toLowerCase().trim();
+
+    bkFiltered = bkSongs.filter(song =>
+        song.title.toLowerCase().includes(search)
+    );
+
+    bkRender();
+
+});
+
+
+// =============================================
+// 21. INITIALISATION
+// =============================================
+
+bkRender();
+
+bkNow.textContent = bkSongs[0].title;
+
+
+// Fonctions accessibles depuis les boutons HTML
+window.bkPlay = bkPlay;
+window.bkToggle = bkToggle;
+window.bkStop = bkStop;
+window.bkNext = bkNext;
+window.bkPrev = bkPrev;
+
+
 
 </script>
-
 </body>
-</html> 
+</html>
