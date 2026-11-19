@@ -732,333 +732,184 @@ window.addAutoReservation = async function() {
 
 };
 
-
 // =============================================
-// 9. PLAYLIST BARBER KING
+// 9. PLAYLIST BARBER KING - AUTO, SANS NOMBRE
 // =============================================
 
-const bkSongs = [];
-
-for (let i = 1; i <= 200; i++) {
-
-    bkSongs.push({
-
-        title: "Music " + i,
-
-        // Exemple : music/sang 1.mp3
-    file: `music/sang ${i}.mp3`
-
-    });
-
-}
-
-let bkFiltered = [...bkSongs];
-
+let bkSongs = [];
+let bkFiltered = [];
 let bkIndex = 0;
-
 let bkIsStopped = false;
 
-
 const bkPlayer = document.getElementById("bkPlayer");
-
 const bkList = document.getElementById("bkList");
-
 const bkNow = document.getElementById("bkNow");
-
 const bkPlayBtn = document.getElementById("bkPlayBtn");
-
 const bkBar = document.getElementById("bkBar");
-
 const bkProgress = document.getElementById("bkProgress");
-
 const bkCurrent = document.getElementById("bkCurrent");
-
 const bkDuration = document.getElementById("bkDuration");
-
 const bkSearch = document.getElementById("bkSearch");
+const bkCount = document.getElementById("bkCount");
 
+// الأنواع اللي كيقراهم: mp3, mp4, mpeg, wav, m4a, ogg
+const BK_EXTS = [".mp3",".mp4",".mpeg",".m4a",".wav",".ogg",".webm"];
 
-// =============================================
-// 10. FORMATAGE DU TEMPS
-// =============================================
-
-function bkFormat(seconds) {
-
-    if (!Number.isFinite(seconds)) return "0:00";
-
-    const min = Math.floor(seconds / 60);
-
-    const sec = Math.floor(seconds % 60);
-
-    return min + ":" + String(sec).padStart(2, "0");
-
+function bkIsMusic(name){
+  name = name.toLowerCase();
+  return BK_EXTS.some(ext => name.endsWith(ext));
 }
 
-
-// =============================================
-// 11. AFFICHER LES MUSIQUES
-// =============================================
-
-function bkRender() {
-
-    bkList.innerHTML = "";
-
-    bkFiltered.forEach(song => {
-
-        const realIndex = bkSongs.indexOf(song);
-
-        const li = document.createElement("li");
-
-        const title = document.createElement("span");
-
-        title.textContent = `${realIndex + 1}. ${song.title}`;
-
-        const play = document.createElement("small");
-
-        play.textContent = "▶";
-
-        li.appendChild(title);
-
-        li.appendChild(play);
-
-        if (realIndex === bkIndex) {
-            li.classList.add("active");
-        }
-
-        li.addEventListener("click", () => {
-            bkPlay(realIndex);
-        });
-
-        bkList.appendChild(li);
-
-    });
-
+function bkCleanName(name){
+  BK_EXTS.forEach(ext => { name = name.replace(ext,""); });
+  return name;
 }
 
+// كنجيبو شحال ما كان فالدوصي من GitHub
+async function loadMusicAuto(){
+  try{
+    let res = await fetch("https://api.github.com/repos/Dev-web-med/BARBER-KING/contents/music");
+    let files = await res.json();
 
-// =============================================
-// 12. LECTURE MUSIQUE
-// =============================================
+    bkSongs = files
+      .filter(f => f.type === "file" && bkIsMusic(f.name))
+      .map(f => ({
+        title: bkCleanName(f.name),
+        file: "music/" + f.name
+      }));
 
-async function bkPlay(index) {
+    // إلا GitHub ما عطانا والو، نجربو الملف القديم ديالك
+    if(bkSongs.length === 0){
+      bkSongs = [{ title: "sang", file: "music/sang.mpeg" }];
+    }
 
-    if (index < 0 || index >= bkSongs.length) return;
-
-    bkIndex = index;
-
-    bkIsStopped = false;
-
-    bkPlayer.src = bkSongs[index].file;
-
-    bkNow.textContent = bkSongs[index].title;
-
-    bkPlayBtn.textContent = "⏸";
-
-    bkBar.style.width = "0%";
-
-    bkCurrent.textContent = "0:00";
-
-    bkDuration.textContent = "0:00";
-
+    bkFiltered = [...bkSongs];
+    if(bkCount) bkCount.textContent = bkSongs.length + " musiques - BARBER KING";
     bkRender();
+    if(bkSongs.length > 0) bkNow.textContent = bkSongs[0].title;
+    console.log("لقيت " + bkSongs.length + " أغنية");
 
-    try {
-
-        await bkPlayer.play();
-
-    } catch (error) {
-
-        console.error("Erreur de lecture :", error);
-
-        bkPlayBtn.textContent = "▶";
-
-        bkNow.textContent = "Impossible de lire : " + bkSongs[index].title;
-
-    }
-
+  } catch(e){
+    console.log("مشكل GitHub API", e);
+    // Fallback إلا كان مشكل فالإنترنت
+    bkSongs = [{ title: "sang", file: "music/sang.mpeg" }];
+    bkFiltered = [...bkSongs];
+    bkRender();
+  }
 }
 
-
-// =============================================
-// 13. PLAY / PAUSE
-// =============================================
-
-async function bkToggle() {
-
-    if (!bkPlayer.src) {
-
-        await bkPlay(0);
-
-        return;
-
-    }
-
-    if (bkPlayer.paused) {
-
-        bkIsStopped = false;
-
-        try {
-
-            await bkPlayer.play();
-
-            bkPlayBtn.textContent = "⏸";
-
-        } catch (error) {
-
-            console.error(error);
-
-            bkPlayBtn.textContent = "▶";
-
-        }
-
-    } else {
-
-        bkPlayer.pause();
-
-        bkPlayBtn.textContent = "▶";
-
-    }
-
+function bkFormat(seconds){
+  if(!Number.isFinite(seconds)) return "0:00";
+  const min = Math.floor(seconds / 60);
+  const sec = Math.floor(seconds % 60);
+  return min + ":" + String(sec).padStart(2,"0");
 }
 
+function bkRender(){
+  bkList.innerHTML = "";
+  bkFiltered.forEach(song => {
+    const realIndex = bkSongs.indexOf(song);
+    const li = document.createElement("li");
+    const title = document.createElement("span");
+    title.textContent = `${realIndex + 1}. ${song.title}`;
+    const play = document.createElement("small");
+    play.textContent = "▶";
+    li.appendChild(title);
+    li.appendChild(play);
+    if(realIndex === bkIndex) li.classList.add("active");
+    li.addEventListener("click", () => bkPlay(realIndex));
+    bkList.appendChild(li);
+  });
+}
 
-// =============================================
-// 14. STOP
-// =============================================
-
-function bkStop() {
-
-    bkIsStopped = true;
-
-    bkPlayer.pause();
-
-    bkPlayer.currentTime = 0;
-
-    bkBar.style.width = "0%";
-
-    bkCurrent.textContent = "0:00";
-
+async function bkPlay(index){
+  if(index < 0 || index >= bkSongs.length) return;
+  bkIndex = index;
+  bkIsStopped = false;
+  bkPlayer.src = bkSongs[index].file;
+  bkNow.textContent = bkSongs[index].title;
+  bkPlayBtn.textContent = "⏸";
+  bkBar.style.width = "0%";
+  bkCurrent.textContent = "0:00";
+  bkDuration.textContent = "0:00";
+  bkRender();
+  try{
+    await bkPlayer.play();
+  }catch(error){
+    console.error("Erreur de lecture :", error);
     bkPlayBtn.textContent = "▶";
-
+    bkNow.textContent = "Impossible de lire : " + bkSongs[index].title;
+  }
 }
 
-
-// =============================================
-// 15. MUSIQUE SUIVANTE
-// =============================================
-
-function bkNext() {
-
-    const next = (bkIndex + 1) % bkSongs.length;
-
-    bkPlay(next);
-
+async function bkToggle(){
+  if(!bkPlayer.src){
+    await bkPlay(0);
+    return;
+  }
+  if(bkPlayer.paused){
+    bkIsStopped = false;
+    try{ await bkPlayer.play(); bkPlayBtn.textContent = "⏸"; }
+    catch(e){ bkPlayBtn.textContent = "▶"; }
+  }else{
+    bkPlayer.pause();
+    bkPlayBtn.textContent = "▶";
+  }
 }
 
-
-// =============================================
-// 16. MUSIQUE PRECEDENTE
-// =============================================
-
-function bkPrev() {
-
-    const previous =
-        (bkIndex - 1 + bkSongs.length) % bkSongs.length;
-
-    bkPlay(previous);
-
+function bkStop(){
+  bkIsStopped = true;
+  bkPlayer.pause();
+  bkPlayer.currentTime = 0;
+  bkBar.style.width = "0%";
+  bkCurrent.textContent = "0:00";
+  bkPlayBtn.textContent = "▶";
 }
 
+function bkNext(){
+  if(bkSongs.length === 0) return;
+  bkPlay((bkIndex + 1) % bkSongs.length);
+}
 
-// =============================================
-// 17. LECTURE AUTOMATIQUE
-// =============================================
+function bkPrev(){
+  if(bkSongs.length === 0) return;
+  bkPlay((bkIndex - 1 + bkSongs.length) % bkSongs.length);
+}
 
 bkPlayer.addEventListener("ended", () => {
-
-    if (!bkIsStopped) {
-        bkNext();
-    }
-
+  if(!bkIsStopped) bkNext();
 });
-
-
-// =============================================
-// 18. PROGRESSION MUSICALE
-// =============================================
 
 bkPlayer.addEventListener("timeupdate", () => {
-
-    if (bkPlayer.duration) {
-
-        const percent =
-            (bkPlayer.currentTime / bkPlayer.duration) * 100;
-
-        bkBar.style.width = percent + "%";
-
-        bkCurrent.textContent = bkFormat(bkPlayer.currentTime);
-
-        bkDuration.textContent = bkFormat(bkPlayer.duration);
-
-    }
-
+  if(bkPlayer.duration){
+    const percent = (bkPlayer.currentTime / bkPlayer.duration) * 100;
+    bkBar.style.width = percent + "%";
+    bkCurrent.textContent = bkFormat(bkPlayer.currentTime);
+    bkDuration.textContent = bkFormat(bkPlayer.duration);
+  }
 });
-
-
-// =============================================
-// 19. BARRE DE PROGRESSION CLIQUABLE
-// =============================================
 
 bkProgress.addEventListener("click", event => {
-
-    if (!Number.isFinite(bkPlayer.duration)) return;
-
-    const rect = bkProgress.getBoundingClientRect();
-
-    const percent = Math.max(
-        0,
-        Math.min(1, (event.clientX - rect.left) / rect.width)
-    );
-
-    bkPlayer.currentTime = percent * bkPlayer.duration;
-
+  if(!Number.isFinite(bkPlayer.duration)) return;
+  const rect = bkProgress.getBoundingClientRect();
+  const percent = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+  bkPlayer.currentTime = percent * bkPlayer.duration;
 });
-
-
-// =============================================
-// 20. RECHERCHE MUSICALE
-// =============================================
 
 bkSearch.addEventListener("input", event => {
-
-    const search = event.target.value.toLowerCase().trim();
-
-    bkFiltered = bkSongs.filter(song =>
-        song.title.toLowerCase().includes(search)
-    );
-
-    bkRender();
-
+  const search = event.target.value.toLowerCase().trim();
+  bkFiltered = bkSongs.filter(song => song.title.toLowerCase().includes(search));
+  bkRender();
 });
 
+// التشغيل
+loadMusicAuto();
 
-// =============================================
-// 21. INITIALISATION
-// =============================================
-
-bkRender();
-
-bkNow.textContent = bkSongs[0].title;
-
-
-// Fonctions accessibles depuis les boutons HTML
 window.bkPlay = bkPlay;
 window.bkToggle = bkToggle;
 window.bkStop = bkStop;
 window.bkNext = bkNext;
 window.bkPrev = bkPrev;
-
-
 
 </script>
 </body>
