@@ -311,7 +311,40 @@ a {
 </style>
 </head>
 <body>
+<!-- حماية صفحة الحجوزات -->
+<div id="lockScreen" style="position:fixed; inset:0; background:#111; z-index:9999; display:flex; align-items:center; justify-content:center; font-family:sans-serif;">
+  <div style="background:#222; padding:30px; border-radius:15px; text-align:center; width:300px; border:2px solid #d4a017;">
+    <h2 style="color:#d4a017; margin-bottom:10px;">🔒 BARBER KING</h2>
+    <p style="color:white; margin-bottom:20px;">دخل الكود باش تشوف الحجوزات</p>
+    <input id="adminCode" type="password" placeholder="الكود..." style="width:100%; padding:12px; border-radius:8px; border:none; text-align:center; font-size:18px; margin-bottom:15px;">
+    <button onclick="checkCode()" style="width:100%; padding:12px; background:#d4a017; border:none; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer;">دخول</button>
+    <p id="errorMsg" style="color:red; display:none; margin-top:10px;">الكود غالط، عاود جرب</p>
+  </div>
+</div>
 
+<script>
+function checkCode(){
+  // بدّل 1234 بالكود اللي بغيتي انت
+  const MON_CODE = "BarbeR2O27kInG";
+  let code = document.getElementById("adminCode").value;
+  if(code === MON_CODE){
+    document.getElementById("lockScreen").style.display = "none";
+    sessionStorage.setItem("adminOK", "yes");
+  } else {
+    document.getElementById("errorMsg").style.display = "block";
+  }
+}
+
+// إلا كان دخل الكود قبيلة، ما نعاودوش نطلبوه ليه
+if(sessionStorage.getItem("adminOK") === "yes"){
+  document.getElementById("lockScreen").style.display = "none";
+}
+
+// ملي يورك على Enter يدخل
+document.getElementById("adminCode").addEventListener("keypress", function(e){
+  if(e.key === "Enter") checkCode();
+});
+</script>
 <header>
 <div class="logo"><img src="logoMk.ico">BARBER <span>KING</span> - ADMIN</div>
 <a href="index.html">← Retour au site</a>
@@ -737,4 +770,4 @@ window.addAutoReservation = async () => {
 </script>
 
 </body>
-</html>
+</html> 
