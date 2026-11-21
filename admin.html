@@ -364,6 +364,8 @@ document.getElementById("adminCode").addEventListener("keypress", function(e){
   .bk-list{list-style:none;padding:0;margin:12px 0 0 0;max-height:100px;overflow-y:auto}
   .bk-list li{padding:8px 10px;font-size:13px;background:#1a1a1a;margin-bottom:5px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;border:1px solid #222}
   .bk-list li.active{background:#c9a227;color:#111;font-weight:bold}
+    .bk-visualizer{display:flex;align-items:flex-end;justify-content:center;gap:4px;height:70px;background:#0a0a0a;border:1px solid #333;border-radius:12px;padding:8px 10px;margin-bottom:12px;overflow:hidden}
+.bk-bar{width:8px;height:8px;background:linear-gradient(to top,#c9a227,#ffe97a);border-radius:4px 4px 0 0;transition:height 0.08s}
 
     .bk-main-row{display:flex;gap:16px;align-items:flex-start;justify-content:center;padding:0 20px}
 .bk-gallery-wrap{display:flex;align-items:center;gap:12px;flex:1;margin:0}
@@ -403,7 +405,12 @@ document.getElementById("adminCode").addEventListener("keypress", function(e){
 <div class="bk-playlist-box">
   <h2>🎵 PLAYLIST - AMBIANCE SALON</h2>
   <p id="bkCount">music - BARBER KING</p>
- 
+     <div class="bk-visualizer" id="bkVisualizer">
+  <div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div>
+  <div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div>
+  <div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div>
+  <div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div>
+</div>
   <div class="bk-now">Maintenant : <span id="bkNow">---</span></div>
   <audio id="bkPlayer"></audio>
   <div class="bk-progress" id="bkProgress"><div class="bk-progress-bar" id="bkBar"></div></div>
@@ -901,7 +908,46 @@ window.bkStop = bkStop;
 window.bkNext = bkNext;
 window.bkPrev = bkPrev;
 
+ // ===== Disco Bars =====
+let bkAudio = document.querySelector('audio'); // أو document.getElementById('bkAudio')
+let bkBars = document.querySelectorAll('.bk-bar');
+let bkCtx, bkAnalyser, bkData;
 
+function bkStartVisualizer() {
+  if (!bkCtx) {
+    bkCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let source = bkCtx.createMediaElementSource(bkAudio);
+    bkAnalyser = bkCtx.createAnalyser();
+    bkAnalyser.fftSize = 64;
+    source.connect(bkAnalyser);
+    bkAnalyser.connect(bkCtx.destination);
+    bkData = new Uint8Array(bkAnalyser.frequencyBinCount);
+  }
+  if (bkCtx.state === 'suspended') bkCtx.resume();
+  bkAnimateBars();
+}
+
+function bkAnimateBars() {
+  requestAnimationFrame(bkAnimateBars);
+  if (!bkAnalyser || bkAudio.paused) {
+    // ملي توقف الموسيقى، البارات يهبطو
+    bkBars.forEach(b => b.style.height = '8px');
+    return;
+  }
+  bkAnalyser.getByteFrequencyData(bkData);
+  bkBars.forEach((bar, i) => {
+    let v = bkData[i * 2] || 10;
+    bar.style.height = (8 + v / 255 * 55) + 'px';
+  });
+}
+
+
+
+// ملي تكليكي على Play، خدم البارات
+document.addEventListener('click', function(e){
+  if (e.target.closest('.bk-controls')) bkStartVisualizer();
+});
+bkAudio.addEventListener('play', bkStartVisualizer);
 
  let bkGalleryIndex = 0;
 function bkChangeSlide(n){
