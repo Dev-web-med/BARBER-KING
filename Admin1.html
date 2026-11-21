@@ -39,7 +39,7 @@ form{width:100%}
 .toggle-panel .btn{width:150px;margin-top:15px;background:transparent;border:2px solid #fff}
 .toggle-panel .btn:hover{background:#fff;color:var(--blue)}
 
-/* ===== LOGO - هادا هو الفيكس المهم ===== */
+
 .toggle-panel img{
   width:260px;
   max-width:85%;
@@ -59,7 +59,7 @@ form{width:100%}
 .booking-card{background:#eee;border-radius:8px;padding:10px;margin:8px 0;font-size:12px;border-left:4px solid var(--gold)}
 .delete-btn{background:#e74c3c;border:none;color:white;padding:6px 12px;border-radius:5px;cursor:pointer;margin-top:5px}
 
-/* ==================== INTRO ==================== */
+
 #intro{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:#081426;color:#f7f8fa;animation:introHide 0.65s ease 1.8s forwards}
 .intro-inner{width:min(420px,85vw);text-align:center}
 .intro-text{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;font-size:clamp(1.8rem,6vw,3rem);font-weight:800;line-height:1.2}
@@ -79,7 +79,7 @@ form{width:100%}
 @keyframes introBar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes introHide{to{opacity:0;visibility:hidden;pointer-events:none}}
 
-/* ==================== TABLETTE 769-1024 ==================== */
+
 @media screen and (min-width:769px) and (max-width:1024px){
   body{padding:20px}
   .container{width:90%;max-width:850px;height:560px;border-radius:25px}
@@ -95,7 +95,7 @@ form{width:100%}
   #allList{max-height:260px}
 }
 
-/* ==================== PETITE TABLETTE 651-768 ==================== */
+
 @media screen and (min-width:651px) and (max-width:768px){
   body{padding:15px}
   .container{width:100%;height:550px;border-radius:22px}
@@ -113,7 +113,7 @@ form{width:100%}
   #allList{max-height:230px}
 }
 
-/* ==================== TELEPHONE JUSQU'A 650px ==================== */
+
 @media screen and (max-width:650px){
   body{padding:10px;min-height:100vh;align-items:center}
   .container{width:100%;max-width:450px;height:780px;border-radius:22px}
@@ -128,7 +128,7 @@ form{width:100%}
   .container.active .toggle-panel.toggle-left{left:0;top:-30%}
   .toggle-panel.toggle-right{right:0;bottom:-30%}
   .container.active .toggle-panel.toggle-right{bottom:0}
-  /* LOGO TELEPHONE - باش ما يقطعش Hello Welcome */
+
   .toggle-panel img{width:165px !important;max-height:150px !important;margin-bottom:0 !important}
   .toggle-panel h1{font-size:20px !important;margin-bottom:2px !important}
   .toggle-panel p{font-size:11px !important;margin:2px 0 !important}
@@ -146,7 +146,7 @@ form{width:100%}
   .intro-text{font-size:clamp(1.6rem,8vw,2.3rem);gap:7px}
 }
 
-/* ==================== PETIT TELEPHONE 380px ==================== */
+
 @media screen and (max-width:380px){
   body{padding:6px}
   .container{height:720px;border-radius:18px}
@@ -163,7 +163,7 @@ form{width:100%}
   .social-icons a{padding:6px;font-size:16px}
 }
 
-/* ==================== GRAND ECRAN ==================== */
+
 @media screen and (min-width:1400px){
   .container{width:900px;height:600px}
   .toggle-panel img{width:280px;max-height:290px}
@@ -240,7 +240,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ===== INTRO =====
+
 window.addEventListener("load", function () {
   const intro = document.getElementById("intro");
   if (!intro) return;
@@ -266,12 +266,12 @@ const dateInput = document.getElementById("date");
 function getToday(){const today=new Date();return new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().split("T")[0];}
 dateInput.min=getToday();
 
-// ===== LocalStorage كيبقى غير احتياط =====
+
 const STORAGE_KEY="barberKingBookings";
 function getBookingsLocal(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}catch{return[]} }
 function saveLocal(b){ localStorage.setItem(STORAGE_KEY, JSON.stringify(b)); }
 
-// ===== حجز جديد -> Firebase =====
+
 bookingForm.addEventListener("submit", async function(e){
   e.preventDefault();
   const name=document.getElementById("name").value.trim();
@@ -282,18 +282,17 @@ bookingForm.addEventListener("submit", async function(e){
   if(!name||!phone||!service||!date||!time){msg.style.color="red";msg.textContent="Veuillez remplir tous les champs.";return;}
   if(date<getToday()){msg.style.color="red";msg.textContent="Veuillez choisir une date valide.";return;}
 
-  // واش هاد البلاصة عامرة فـ Firebase ؟
+؟
   const qCheck = query(collection(db,"bookings"), where("date","==",date+"T"+time), where("service","==",service));
   const check = await getDocs(qCheck);
-  // حيت فـ index.html كنديرو date كامل، و هنا date+time مفروقين، غادي نقلبو بالطريقتين
-  // باش ما نعقدوهاش، غادي نكملو الحجز
+
   try{
     const booking = {
       id: Date.now(),
       nom: name, name: name,
       telephone: phone, phone: phone,
       service: service,
-      date: date+"T"+time, // نفس الفورما ديال index.html باش admin.html يفهمها
+      date: date+"T"+time,
       dateOnly: date, time: time,
       statut: "En attente",
       dateCreation: new Date().toISOString(),
@@ -306,7 +305,7 @@ bookingForm.addEventListener("submit", async function(e){
   }catch(err){ msg.style.color="red"; msg.textContent="Erreur: "+err.message; }
 });
 
-// ===== Login Admin =====
+
 const ADMIN_CODE="KinG2O26";
 adminForm.addEventListener("submit",function(e){
   e.preventDefault();
@@ -318,7 +317,7 @@ adminForm.addEventListener("submit",function(e){
   } else { adminMsg.style.color="red"; adminMsg.textContent="Code administrateur incorrect."; }
 });
 
-// ===== عرض الحجوزات Live من Firebase =====
+
 let unsubscribe = null;
 function startAdminListener(){
   if(unsubscribe) return;
