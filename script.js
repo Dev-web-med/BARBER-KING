@@ -1,10 +1,6 @@
 
 "use strict";
 
-/* ==========================================
-   BARBER KING - JAVASCRIPT AVEC FIREBASE
-   ========================================== */
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -14,10 +10,6 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-
-/* ==========================================
-   1. CONFIGURATION FIREBASE
-   ========================================== */
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4It5yeetfMYcUTGWiFhaw6XBRcX4QhCw",
@@ -32,10 +24,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-/* ==========================================
-   2. PARAMÈTRES
-   ========================================== */
-
 const ADMIN_CODE = "KinG2O26";
 const ADMIN_PAGE = "admin.html";
 
@@ -43,9 +31,6 @@ const STORAGE_KEY = "barberKingReservations";
 const THEME_KEY = "barberKingTheme";
 
 
-/* ==========================================
-   3. ÉLÉMENTS HTML
-   ========================================== */
 
 const nameInput = document.getElementById("n");
 const phoneInput = document.getElementById("p");
@@ -54,9 +39,6 @@ const dateInput = document.getElementById("d");
 const message = document.getElementById("m");
 
 
-/* ==========================================
-   4. GESTION DU THÈME
-   ========================================== */
 
 function initializeTheme() {
 
@@ -97,9 +79,6 @@ function toggleTheme() {
 }
 
 
-/* ==========================================
-   5. GESTION DES RÉSERVATIONS LOCALES
-   ========================================== */
 
 function getReservations() {
 
@@ -143,10 +122,6 @@ function saveReservation(reservation) {
 }
 
 
-/* ==========================================
-   6. INITIALISATION DE LA DATE
-   ========================================== */
-
 function initializeDate() {
 
     if (!dateInput) return;
@@ -161,10 +136,6 @@ function initializeDate() {
 }
 
 
-/* ==========================================
-   7. AFFICHAGE DES MESSAGES
-   ========================================== */
-
 function showMessage(text, color = "#4ade80") {
 
     if (!message) return;
@@ -173,10 +144,6 @@ function showMessage(text, color = "#4ade80") {
     message.style.color = color;
 }
 
-
-/* ==========================================
-   8. FONCTION DE RÉSERVATION
-   ========================================== */
 
 async function go() {
 
@@ -195,7 +162,6 @@ async function go() {
 
     showMessage("");
 
-    // Vérification du nom
     if (nom.length < 3) {
 
         showMessage(
@@ -206,7 +172,6 @@ async function go() {
         return;
     }
 
-    // Vérification du téléphone marocain
     const tel = telephone.replace(/[\s()-]/g, "");
 
     const phoneRegex = /^(?:\+212|0)([5-7]\d{8})$/;
@@ -221,7 +186,6 @@ async function go() {
         return;
     }
 
-    // Vérification du service
     if (!service || service === "✂️ Service") {
 
         showMessage(
@@ -232,7 +196,6 @@ async function go() {
         return;
     }
 
-    // Vérification de la date
     if (!date) {
 
         showMessage(
@@ -258,7 +221,6 @@ async function go() {
         return;
     }
 
-    // Création de la réservation
     const reservation = {
 
         id: Date.now(),
@@ -275,8 +237,6 @@ async function go() {
 
         dateCreation: new Date().toISOString()
     };
-
-    // Sauvegarde locale
     const saved = saveReservation(reservation);
 
     if (!saved) {
@@ -289,7 +249,6 @@ async function go() {
         return;
     }
 
-    // Enregistrement Firebase
     try {
 
         await addDoc(
@@ -305,7 +264,6 @@ async function go() {
             "#4ade80"
         );
 
-        // Vider le formulaire
         nameInput.value = "";
         phoneInput.value = "";
         serviceInput.selectedIndex = 0;
@@ -325,9 +283,6 @@ async function go() {
 }
 
 
-/* ==========================================
-   9. ACCÈS ADMINISTRATEUR
-   ========================================== */
 
 function openAdmin() {
 
@@ -353,10 +308,6 @@ function openAdmin() {
 }
 
 
-/* ==========================================
-   10. VÉRIFICATION ADMIN
-   ========================================== */
-
 function checkAdminAccess() {
 
     const currentPage =
@@ -375,10 +326,6 @@ function checkAdminAccess() {
     }
 }
 
-
-/* ==========================================
-   11. NAVIGATION
-   ========================================== */
 
 function initializeNavigation() {
 
@@ -411,9 +358,6 @@ function initializeNavigation() {
 }
 
 
-/* ==========================================
-   12. BOUTON RETOUR EN HAUT
-   ========================================== */
 
 function initializeTopButton() {
 
@@ -431,10 +375,6 @@ function initializeTopButton() {
     });
 }
 
-
-/* ==========================================
-   13. ANIMATION INTRODUCTION
-   ========================================== */
 
 function initializeIntro() {
 
@@ -460,10 +400,6 @@ function initializeIntro() {
 }
 
 
-/* ==========================================
-   14. INITIALISATION GÉNÉRALE
-   ========================================== */
-
 document.addEventListener("DOMContentLoaded", function() {
 
     initializeTheme();
@@ -478,7 +414,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     initializeIntro();
 
-    // Bouton de changement de thème
     const themeButton =
         document.getElementById("themeToggle");
 
@@ -493,9 +428,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
-/* ==========================================
-   15. FONCTIONS ACCESSIBLES HTML
-   ========================================== */
 
 window.go = go;
 
