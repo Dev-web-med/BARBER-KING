@@ -7,9 +7,7 @@
 
 <style>
 
-/* =====================================
-   STYLE GÉNÉRAL
-===================================== */
+
 
 * {
     margin: 0;
@@ -25,9 +23,6 @@ body {
     overflow-x: hidden;
 }
 
-/* =====================================
-   HEADER
-===================================== */
 
 header {
     display: flex;
@@ -59,9 +54,7 @@ header {
     color: #facc15;
 }
 
-/* =====================================
-   TITRES
-===================================== */
+
 
 h2 {
     color: #facc15;
@@ -70,9 +63,7 @@ h2 {
     font-size: 26px;
 }
 
-/* =====================================
-   TABLEAU
-===================================== */
+
 
 .table-container {
     width: 100%;
@@ -109,9 +100,7 @@ tr:hover td {
     transition: 0.3s;
 }
 
-/* =====================================
-   BOUTONS
-===================================== */
+
 
 button {
     padding: 6px 12px;
@@ -152,9 +141,6 @@ a {
     color: #facc15;
 }
 
-/* =====================================
-   TABLETTE
-===================================== */
 
 @media screen and (max-width: 1024px) {
 
@@ -181,9 +167,6 @@ a {
     }
 }
 
-/* =====================================
-   PETITE TABLETTE
-===================================== */
 
 @media screen and (max-width: 768px) {
 
@@ -219,9 +202,6 @@ a {
     }
 }
 
-/* =====================================
-   TÉLÉPHONE
-===================================== */
 
 @media screen and (max-width: 480px) {
 
@@ -277,9 +257,7 @@ a {
     }
 }
 
-/* =====================================
-   PETITS TÉLÉPHONES
-===================================== */
+
 
 @media screen and (max-width: 360px) {
 
@@ -311,21 +289,21 @@ a {
 </style>
 </head>
 <body>
-<!-- حماية صفحة الحجوزات -->
+
 <div id="lockScreen" style="position:fixed; inset:0; background:#111; z-index:9999; display:flex; align-items:center; justify-content:center; font-family:sans-serif;">
   <div style="background:#222; padding:30px; border-radius:15px; text-align:center; width:300px; border:2px solid #d4a017;">
     <h2 style="color:#d4a017; margin-bottom:10px;">🔒 BARBER KING</h2>
-    <p style="color:white; margin-bottom:20px;">دخل الكود باش تشوف الحجوزات</p>
-    <input id="adminCode" type="password" placeholder="الكود..." style="width:100%; padding:12px; border-radius:8px; border:none; text-align:center; font-size:18px; margin-bottom:15px;">
-    <button onclick="checkCode()" style="width:100%; padding:12px; background:#d4a017; border:none; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer;">دخول</button>
-    <p id="errorMsg" style="color:red; display:none; margin-top:10px;">الكود غالط، عاود جرب</p>
+    <p style="color:white; margin-bottom:20px;">le code</p>
+    <input id="adminCode" type="password" placeholder="code..." style="width:100%; padding:12px; border-radius:8px; border:none; text-align:center; font-size:18px; margin-bottom:15px;">
+    <button onclick="checkCode()" style="width:100%; padding:12px; background:#d4a017; border:none; border-radius:8px; font-weight:bold; font-size:16px; cursor:pointer;">Entrez</button>
+    <p id="errorMsg" style="color:red; display:none; margin-top:10px;">Code incorrect</p>
   </div>
 </div>
 
 <script>
-function checkCode(){
-  // بدّل 1234 بالكود اللي بغيتي انت
-  const MON_CODE = "BarbeR2O27kInG";
+function checkCode(){ 
+
+   const MON_CODE = "BarbeR2O27kInG";
   let code = document.getElementById("adminCode").value;
   if(code === MON_CODE){
     document.getElementById("lockScreen").style.display = "none";
@@ -335,12 +313,12 @@ function checkCode(){
   }
 }
 
-// إلا كان دخل الكود قبيلة، ما نعاودوش نطلبوه ليه
+
 if(sessionStorage.getItem("adminOK") === "yes"){
   document.getElementById("lockScreen").style.display = "none";
 }
 
-// ملي يورك على Enter يدخل
+
 document.getElementById("adminCode").addEventListener("keypress", function(e){
   if(e.key === "Enter") checkCode();
 });
@@ -369,7 +347,7 @@ document.getElementById("adminCode").addEventListener("keypress", function(e){
 </div>
 
 
-<!-- ===== PLAYLIST 200 AGHANI - BARBER KING - VERSION MSHHA ===== -->
+
 <style>
   .bk-playlist-box{max-width:600px;margin:30px auto;background:#111;border:1px solid #c9a227;border-radius:18px;padding:20px;font-family:Arial;color:#fff}
   .bk-playlist-box h2{text-align:center;color:#e8c55a;margin:0 0 5px 0;font-size:22px}
@@ -411,9 +389,8 @@ document.getElementById("adminCode").addEventListener("keypress", function(e){
 
 <script type="module">
 
-// =============================================
-// 1. FIREBASE - CONFIGURATION
-// =============================================
+
+
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -446,9 +423,7 @@ const bookingsRef = collection(db, "bookings");
 let allBookings = [];
 
 
-// =============================================
-// 2. FORMATAGE DES DATES
-// =============================================
+
 
 function formatDate(value) {
 
@@ -476,9 +451,6 @@ function formatDate(value) {
 }
 
 
-// =============================================
-// 3. AFFICHAGE DES RESERVATIONS
-// =============================================
 
 function displayBookings() {
 
@@ -544,9 +516,6 @@ function displayBookings() {
 }
 
 
-// =============================================
-// 4. FIREBASE - ACTUALISATION EN TEMPS RÉEL
-// =============================================
 
 onSnapshot(bookingsRef, (snapshot) => {
 
@@ -561,7 +530,6 @@ onSnapshot(bookingsRef, (snapshot) => {
 
     });
 
-    // Trier les réservations par date de création
     allBookings.sort((a, b) => {
 
         const dateA = a.createdAt?.toMillis?.() ||
@@ -593,9 +561,7 @@ onSnapshot(bookingsRef, (snapshot) => {
 });
 
 
-// =============================================
-// 5. SUPPRIMER UNE RESERVATION
-// =============================================
+
 
 window.delOne = async function(index) {
 
@@ -626,9 +592,7 @@ window.delOne = async function(index) {
 };
 
 
-// =============================================
-// 6. SUPPRIMER TOUTES LES RESERVATIONS
-// =============================================
+
 
 window.clearAll = async function() {
 
@@ -659,9 +623,6 @@ window.clearAll = async function() {
 };
 
 
-// =============================================
-// 7. AUTO ADMIN - NUMERO AUTOMATIQUE
-// =============================================
 
 const AUTO_COUNTER_KEY = "barberKingAutoCounter";
 
@@ -688,9 +649,6 @@ function getNextAutoPhone() {
 }
 
 
-// =============================================
-// 8. AJOUTER UNE RESERVATION AUTOMATIQUE
-// =============================================
 
 window.addAutoReservation = async function() {
 
@@ -732,9 +690,7 @@ window.addAutoReservation = async function() {
 
 };
 
-// =============================================
-// 9. PLAYLIST BARBER KING - AUTO, SANS NOMBRE
-// =============================================
+
 
 let bkSongs = [];
 let bkFiltered = [];
@@ -752,7 +708,7 @@ const bkDuration = document.getElementById("bkDuration");
 const bkSearch = document.getElementById("bkSearch");
 const bkCount = document.getElementById("bkCount");
 
-// الأنواع اللي كيقراهم: mp3, mp4, mpeg, wav, m4a, ogg
+
 const BK_EXTS = [".mp3",".mp4",".mpeg",".m4a",".wav",".ogg",".webm"];
 
 function bkIsMusic(name){
@@ -765,7 +721,6 @@ function bkCleanName(name){
   return name;
 }
 
-// كنجيبو شحال ما كان فالدوصي من GitHub
 async function loadMusicAuto(){
   try{
     let res = await fetch("https://api.github.com/repos/Dev-web-med/BARBER-KING/contents/music");
@@ -778,7 +733,7 @@ async function loadMusicAuto(){
         file: "music/" + f.name
       }));
 
-    // إلا GitHub ما عطانا والو، نجربو الملف القديم ديالك
+  
     if(bkSongs.length === 0){
       bkSongs = [{ title: "sang", file: "music/sang.mpeg" }];
     }
@@ -787,11 +742,11 @@ async function loadMusicAuto(){
     if(bkCount) bkCount.textContent = bkSongs.length + " musiques - BARBER KING";
     bkRender();
     if(bkSongs.length > 0) bkNow.textContent = bkSongs[0].title;
-    console.log("لقيت " + bkSongs.length + " أغنية");
+    console.log("cherche " + bkSongs.length + " music");
 
   } catch(e){
-    console.log("مشكل GitHub API", e);
-    // Fallback إلا كان مشكل فالإنترنت
+    console.log("PB GitHub API", e);
+
     bkSongs = [{ title: "sang", file: "music/sang.mpeg" }];
     bkFiltered = [...bkSongs];
     bkRender();
@@ -902,7 +857,7 @@ bkSearch.addEventListener("input", event => {
   bkRender();
 });
 
-// التشغيل
+
 loadMusicAuto();
 
 window.bkPlay = bkPlay;
