@@ -1,7 +1,4 @@
-/* ==========================================
-   KING BARBER - CSS كامل - نسخة ICON
-   الكارطات موحدين - اللوغو باين مزيان
-========================================== */
+
 *{
     margin:0;
     padding:0;
@@ -22,7 +19,7 @@ img{
     display:block;
 }
 
-/* ============ HEADER ============ */
+
 header{
     min-height:52px;
     background:#020817;
@@ -79,7 +76,7 @@ header > div:last-child{
     font-size:18px;
 }
 
-/* ============ HERO ============ */
+
 .hero{
     position:relative;
     overflow:hidden;
@@ -134,7 +131,7 @@ header > div:last-child{
     box-shadow:0 0 15px #e6ac15;
 }
 
-/* ============ SERVICES - اللون موحد ============ */
+
 .services{
     padding:18px 6% 14px;
     text-align:center;
@@ -175,7 +172,6 @@ header > div:last-child{
     align-items:stretch;
 }
 
-/* الكارطة - نفس اللون كاملين */
 .card{
     background:#07152d !important;
     background:linear-gradient(180deg,#0a1a35 0%, #07152d 55%, #020817 100%) !important;
@@ -199,7 +195,7 @@ header > div:last-child{
     box-shadow:0 0 18px rgba(245,185,27,.3);
 }
 
-/* ===== ICON - باين مزيان و موحد ===== */
+
 .card img{
     width:64px !important;
     height:64px !important;
@@ -214,11 +210,11 @@ header > div:last-child{
     border-radius:0 !important;
     padding:0 !important;
     box-shadow:none !important;
-    /* توحيد اللون الذهبي ديال كاع الأيقونات */
+ /
     filter: none !important;
 }
 
-/* الموستاش عريض - يبقى بنفس الارتفاع باش الكارطات يبقاو موحدين */
+
 .card:nth-child(3) img{
     width:88px !important;
     height:64px !important;
@@ -250,7 +246,7 @@ header > div:last-child{
     padding-top:6px;
 }
 
-/* ============ RESERVATION ============ */
+
 .res{
     display:grid;
     grid-template-columns:1.1fr 1.65fr .9fr;
@@ -323,7 +319,7 @@ header > div:last-child{
     margin-top:5px;
 }
 
-/* ============ FOOTER ============ */
+
 footer{
     min-height:48px;
     background:#020817;
@@ -381,7 +377,6 @@ footer > div:nth-child(3){ font-size:9px; color:#ccc; margin-right: 30px; }
     box-shadow:0 4px 12px rgba(0,0,0,.4);
 }
 
-/* ============ TABLET 900px ============ */
 @media (max-width:900px){
     header{ padding:0 4%; }
     .grid{ grid-template-columns:repeat(2,1fr); }
@@ -394,7 +389,7 @@ footer > div:nth-child(3){ font-size:9px; color:#ccc; margin-right: 30px; }
     .right{ grid-column:span 2; }
 }
 
-/* ============ TELEPHONE 768px ============ */
+
 @media (max-width:768px){
     header{
         padding:10px;
@@ -468,7 +463,7 @@ footer > div:nth-child(3){ font-size:9px; color:#ccc; margin-right: 30px; }
     }
 }
 
-/* ============ TELEPHONE صغير 400px ============ */
+
 @media (max-width:400px){
     .row{ flex-direction:column; }
     .row input,
@@ -480,11 +475,7 @@ footer > div:nth-child(3){ font-size:9px; color:#ccc; margin-right: 30px; }
     .logo{ font-size:15px; }
 }
 
-/* =========================================
-   BARBER KING - CORRECTIONS & NEW FEATURES
-   ========================================= */
 
-/* 1. ICONS فوق الكارطات */
 
 .card {
     display: flex;
@@ -508,7 +499,7 @@ footer > div:nth-child(3){ font-size:9px; color:#ccc; margin-right: 30px; }
     border: none !important;
     border-radius: 0 !important;
 
-    /* Effet icône dessinée en or */
+
     filter:
         brightness(1.15)
         saturate(1.4)
@@ -517,7 +508,7 @@ footer > div:nth-child(3){ font-size:9px; color:#ccc; margin-right: 30px; }
     transition: .35s ease;
 }
 
-/* Enlever l'ancienne règle nth-child(3) */
+
 .card:nth-child(3) img {
     width: 65px !important;
     height: 65px !important;
@@ -537,7 +528,7 @@ footer > div:nth-child(3){ font-size:9px; color:#ccc; margin-right: 30px; }
     margin-top: 0;
 }
 
-/* 2. THEME BUTTON */
+
 
 #themeToggle {
     cursor: pointer;
@@ -551,7 +542,7 @@ footer > div:nth-child(3){ font-size:9px; color:#ccc; margin-right: 30px; }
     transform: rotate(-15deg) scale(1.15);
 }
 
-/* 3. SOCIAL ICONS - FOOTER */
+
 
 .social-icons {
     display: flex;
@@ -582,7 +573,7 @@ footer > div:nth-child(3){ font-size:9px; color:#ccc; margin-right: 30px; }
     box-shadow: 0 0 12px rgba(255,185,27,.3);
 }
 
-/* 4. ADMIN LINK */
+
 
 footer a.admin-link {
     color: #ffbd21 !important;
@@ -594,7 +585,7 @@ footer a.admin-link:hover {
     text-decoration: underline;
 }
 
-/* 5. THEME JOUR */
+
 
 body.light-theme {
     background: #e9eef5;
@@ -676,7 +667,7 @@ body.light-theme .social-icons a {
     border-color: #9aaac0;
 }
 
-/* 6. MESSAGE RESERVATION */
+
 
 #m {
     min-height: 20px;
@@ -684,7 +675,7 @@ body.light-theme .social-icons a {
     font-weight: 600;
 }
 
-/* 7. RESPONSIVE FOOTER */
+
 
 @media(max-width:768px) {
     .social-icons {
@@ -703,7 +694,7 @@ body.light-theme .social-icons a {
     }
 }
 
-/* 8. TRANSITION THEME */
+
 
 body,
 header,
@@ -809,7 +800,7 @@ footer,
     animation: fadeIn 1s ease 1.3s forwards;
 }
 
-/* ANIMATIONS */
+
 
 @keyframes loading {
     from { width: 0; }
@@ -832,7 +823,6 @@ footer,
     to { opacity: 1; }
 }
 
-/* MOBILE */
 
 @media(max-width: 480px) {
     .intro-text {
@@ -843,4 +833,144 @@ footer,
         font-size: 50px;
     }
 }
+
+.location {
+    padding: 35px 8%;
+    background: #020817;
+    color: white;
+    text-align: center;
+}
+
+.location h2 {
+    color: #D4AF37;
+    font-size: 26px;
+    margin-bottom: 8px;
+}
+
+.location > p {
+    color: #ccc;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.location-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 15px;
+    max-width: 1000px;
+    margin: auto;
+    background: #081426;
+    padding: 14px;
+    border: 1px solid #D4AF37;
+    border-radius: 15px;
+}
+
+.location-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.location-info > i {
+    font-size: 38px;
+    color: #D4AF37;
+}
+
+.location-info h3 {
+    color: #e1e7f0;
+    font-size: 19px;
+    margin: 0;
+}
+
+.location-info p {
+    color: white;
+    font-size: 14px;
+    margin: 0;
+}
+
+.location-info p i {
+    color: #6093e4;
+    font-size: 17px;
+}
+
+.location-info a {
+    display: inline-block;
+    padding: 9px 16px;
+    background: #D4AF37;
+    color: #020817;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.location-info a:hover {
+    background: white;
+    transform: translateY(-3px);
+}
+
+.location-map {
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid #D4AF37;
+}
+
+.location-map iframe {
+    display: block;
+    width: 100%;
+    height: 300px;
+}
+
+
+@media (max-width: 768px) {
+    .location {
+        padding: 28px 5%;
+    }
+
+    .location-container {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .location h2 {
+        font-size: 23px;
+    }
+
+    .location-map iframe {
+        height: 240px;
+    }
+
+    .location-info > i {
+        font-size: 32px;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .location {
+        padding: 22px 4%;
+    }
+
+    .location h2 {
+        font-size: 21px;
+    }
+
+    .location > p {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .location-info h3 {
+        font-size: 17px;
+    }
+
+    .location-map iframe {
+        height: 210px;
+    }
+}
+
 
