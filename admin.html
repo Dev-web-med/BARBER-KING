@@ -902,13 +902,19 @@ window.bkStop = bkStop;
 window.bkNext = bkNext;
 window.bkPrev = bkPrev;
 
-     let bkGalleryIndex = 0;
-function bkChangeSlide(n){
-  let slides = document.querySelectorAll('.bk-slide');
-  if(slides.length === 0) return;
-  slides[bkGalleryIndex].classList.remove('active');
-  bkGalleryIndex = (bkGalleryIndex + n + slides.length) % slides.length;
-  slides[bkGalleryIndex].classList.add('active');
+let bkGalleryIndex = 0;
+
+function bkChangeSlide(n) {
+    const slides = document.querySelectorAll(".bk-slide");
+
+    if (slides.length === 0) return;
+
+    slides[bkGalleryIndex].classList.remove("active");
+
+    bkGalleryIndex =
+        (bkGalleryIndex + n + slides.length) % slides.length;
+
+    slides[bkGalleryIndex].classList.add("active");
 
 
 </script>
