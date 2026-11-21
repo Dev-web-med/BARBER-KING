@@ -904,17 +904,21 @@ window.bkPrev = bkPrev;
 
 let bkGalleryIndex = 0;
 
-function bkChangeSlide(n) {
+window.bkChangeSlide = function(n) {
     const slides = document.querySelectorAll(".bk-slide");
 
     if (slides.length === 0) return;
 
+    // Masquer l'image actuelle
     slides[bkGalleryIndex].classList.remove("active");
 
+    // Calculer la prochaine image
     bkGalleryIndex =
         (bkGalleryIndex + n + slides.length) % slides.length;
 
+    // Afficher la nouvelle image
     slides[bkGalleryIndex].classList.add("active");
+};
 
 
 </script>
