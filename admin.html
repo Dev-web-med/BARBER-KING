@@ -403,12 +403,7 @@ document.getElementById("adminCode").addEventListener("keypress", function(e){
 <div class="bk-playlist-box">
   <h2>🎵 PLAYLIST - AMBIANCE SALON</h2>
   <p id="bkCount">music - BARBER KING</p>
-      <div class="bk-visualizer" id="bkVisualizer">
-      <div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div>
-  <div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div>
-  <div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div>
-  <div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div><div class="bk-bar"></div>
-</div>
+ 
   <div class="bk-now">Maintenant : <span id="bkNow">---</span></div>
   <audio id="bkPlayer"></audio>
   <div class="bk-progress" id="bkProgress"><div class="bk-progress-bar" id="bkBar"></div></div>
@@ -906,46 +901,6 @@ window.bkStop = bkStop;
 window.bkNext = bkNext;
 window.bkPrev = bkPrev;
 
-     // ===== Disco Bars =====
-let bkAudio = document.querySelector('audio'); // أو document.getElementById('bkAudio')
-let bkBars = document.querySelectorAll('.bk-bar');
-let bkCtx, bkAnalyser, bkData;
-
-function bkStartVisualizer() {
-  if (!bkCtx) {
-    bkCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let source = bkCtx.createMediaElementSource(bkAudio);
-    bkAnalyser = bkCtx.createAnalyser();
-    bkAnalyser.fftSize = 64;
-    source.connect(bkAnalyser);
-    bkAnalyser.connect(bkCtx.destination);
-    bkData = new Uint8Array(bkAnalyser.frequencyBinCount);
-  }
-  if (bkCtx.state === 'suspended') bkCtx.resume();
-  bkAnimateBars();
-}
-
-function bkAnimateBars() {
-  requestAnimationFrame(bkAnimateBars);
-  if (!bkAnalyser || bkAudio.paused) {
-    // ملي توقف الموسيقى، البارات يهبطو
-    bkBars.forEach(b => b.style.height = '8px');
-    return;
-  }
-  bkAnalyser.getByteFrequencyData(bkData);
-  bkBars.forEach((bar, i) => {
-    let v = bkData[i * 2] || 10;
-    bar.style.height = (8 + v / 255 * 55) + 'px';
-  });
-}
-
-
-
-// ملي تكليكي على Play، خدم البارات
-document.addEventListener('click', function(e){
-  if (e.target.closest('.bk-controls')) bkStartVisualizer();
-});
-bkAudio.addEventListener('play', bkStartVisualizer);
 
 
  let bkGalleryIndex = 0;
@@ -955,7 +910,7 @@ function bkChangeSlide(n){
   slides[bkGalleryIndex].classList.remove('active');
   bkGalleryIndex = (bkGalleryIndex + n + slides.length) % slides.length;
   slides[bkGalleryIndex].classList.add('active');
-}
+
 </script>
 </body>
 </html>
