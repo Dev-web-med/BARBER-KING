@@ -281,7 +281,6 @@ bookingForm.addEventListener("submit", async function(e){
   if(!name||!phone||!service||!date||!time){msg.style.color="red";msg.textContent="Veuillez remplir tous les champs.";return;}
   if(date<getToday()){msg.style.color="red";msg.textContent="Veuillez choisir une date valide.";return;}
 
-؟
   const qCheck = query(collection(db,"bookings"), where("date","==",date+"T"+time), where("service","==",service));
   const check = await getDocs(qCheck);
 
