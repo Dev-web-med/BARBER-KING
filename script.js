@@ -32,6 +32,7 @@ const db = getFirestore(app);
 // CONFIGURATION
 // =====================================
 
+const ADMIN_CODE = "KinG2O26";
 const ADMIN_PAGE = "admin.html";
 
 const STORAGE_KEY = "barberKingReservations";
