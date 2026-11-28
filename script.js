@@ -263,6 +263,24 @@ async function go() {
             "✅ Réservation enregistrée avec succès ! Merci " + nom,
             "#4ade80"
         );
+            // OUVRIR WHATSAPP
+        envoyerWhatsApp(reservation);
+
+        nameInput.value = "";
+        phoneInput.value = "";
+        serviceInput.selectedIndex = 0;
+        dateInput.value = "";
+
+        initializeDate();
+
+    } catch (error) {
+
+        console.error("Erreur Firebase :", error);
+
+        showMessage(
+            "⚠️ Réservation enregistrée localement, mais synchronisation Firebase impossible.",
+            "#ff6464"
+        );
 
         nameInput.value = "";
         phoneInput.value = "";
@@ -424,41 +442,6 @@ document.addEventListener("DOMContentLoaded", function() {
             toggleTheme
         );
     }
-
-    // =====================================
-// WHATSAPP - BARBER KING
-// =====================================
-
-function envoyerWhatsApp(reservation) {
-
-    const numeroWhatsApp = "212639798816";
-
-    const dateFormatee = new Date(reservation.date)
-        .toLocaleString("fr-FR", {
-            dateStyle: "full",
-            timeStyle: "short"
-        });
-
-    const messageWhatsApp = `
-👑 BARBER KING
-━━━━━━━━━━━━━━━━
-
-✂️ NOUVELLE RÉSERVATION
-
-👤 Nom : ${reservation.nom}
-📞 Téléphone : ${reservation.telephone}
-💈 Service : ${reservation.service}
-📅 Date : ${dateFormatee}
-
-━━━━━━━━━━━━━━━━
-Nouvelle réservation reçue !
-`;
-
-    const url =
-        `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(messageWhatsApp)}`;
-
-    window.open(url, "_blank");
-}
 
 });
 
