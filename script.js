@@ -425,7 +425,43 @@ document.addEventListener("DOMContentLoaded", function() {
         );
     }
 
+    // =====================================
+// WHATSAPP - BARBER KING
+// =====================================
+
+function envoyerWhatsApp(reservation) {
+
+    const numeroWhatsApp = "212639798816";
+
+    const dateFormatee = new Date(reservation.date)
+        .toLocaleString("fr-FR", {
+            dateStyle: "full",
+            timeStyle: "short"
+        });
+
+    const messageWhatsApp = `
+👑 BARBER KING
+━━━━━━━━━━━━━━━━
+
+✂️ NOUVELLE RÉSERVATION
+
+👤 Nom : ${reservation.nom}
+📞 Téléphone : ${reservation.telephone}
+💈 Service : ${reservation.service}
+📅 Date : ${dateFormatee}
+
+━━━━━━━━━━━━━━━━
+Nouvelle réservation reçue !
+`;
+
+    const url =
+        `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(messageWhatsApp)}`;
+
+    window.open(url, "_blank");
+}
+
 });
+
 
 
 
