@@ -11,6 +11,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
+// =====================================
+// FIREBASE
+// =====================================
+
 const firebaseConfig = {
     apiKey: "AIzaSyD4It5yeetfMYcUTGWiFhaw6XBRcX4QhCw",
     authDomain: "barber-king-48.firebaseapp.com",
@@ -24,6 +28,10 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
+// =====================================
+// CONFIGURATION
+// =====================================
+
 const ADMIN_CODE = "KinG2O26";
 const ADMIN_PAGE = "admin.html";
 
@@ -31,6 +39,9 @@ const STORAGE_KEY = "barberKingReservations";
 const THEME_KEY = "barberKingTheme";
 
 
+// =====================================
+// ELEMENTS HTML
+// =====================================
 
 const nameInput = document.getElementById("n");
 const phoneInput = document.getElementById("p");
@@ -39,6 +50,9 @@ const dateInput = document.getElementById("d");
 const message = document.getElementById("m");
 
 
+// =====================================
+// THEME
+// =====================================
 
 function initializeTheme() {
 
@@ -79,6 +93,9 @@ function toggleTheme() {
 }
 
 
+// =====================================
+// LOCAL STORAGE
+// =====================================
 
 function getReservations() {
 
@@ -122,6 +139,10 @@ function saveReservation(reservation) {
 }
 
 
+// =====================================
+// DATE
+// =====================================
+
 function initializeDate() {
 
     if (!dateInput) return;
@@ -136,6 +157,10 @@ function initializeDate() {
 }
 
 
+// =====================================
+// MESSAGE
+// =====================================
+
 function showMessage(text, color = "#4ade80") {
 
     if (!message) return;
@@ -144,6 +169,49 @@ function showMessage(text, color = "#4ade80") {
     message.style.color = color;
 }
 
+
+// =====================================
+// WHATSAPP - BARBER KING
+// =====================================
+
+function envoyerWhatsApp(reservation) {
+
+    const numeroWhatsApp = "212639798816";
+
+    const dateFormatee = new Date(reservation.date)
+        .toLocaleString("fr-FR", {
+            dateStyle: "full",
+            timeStyle: "short"
+        });
+
+    const texte = `
+👑 BARBER KING
+━━━━━━━━━━━━━━━━
+
+✂️ NOUVELLE RÉSERVATION
+
+👤 Nom : ${reservation.nom}
+📞 Téléphone : ${reservation.telephone}
+💈 Service : ${reservation.service}
+📅 Date : ${dateFormatee}
+
+━━━━━━━━━━━━━━━━
+Nouvelle réservation reçue !
+`;
+
+    const url =
+        "https://wa.me/" +
+        numeroWhatsApp +
+        "?text=" +
+        encodeURIComponent(texte);
+
+    window.open(url, "_blank");
+}
+
+
+// =====================================
+// RESERVATION
+// =====================================
 
 async function go() {
 
@@ -237,6 +305,7 @@ async function go() {
 
         dateCreation: new Date().toISOString()
     };
+
     const saved = saveReservation(reservation);
 
     if (!saved) {
@@ -248,6 +317,9 @@ async function go() {
 
         return;
     }
+
+    // OUVERTURE WHATSAPP AVANT ATTENTE FIREBASE
+    envoyerWhatsApp(reservation);
 
     try {
 
@@ -262,24 +334,6 @@ async function go() {
         showMessage(
             "✅ Réservation enregistrée avec succès ! Merci " + nom,
             "#4ade80"
-        );
-            // OUVRIR WHATSAPP
-        envoyerWhatsApp(reservation);
-
-        nameInput.value = "";
-        phoneInput.value = "";
-        serviceInput.selectedIndex = 0;
-        dateInput.value = "";
-
-        initializeDate();
-
-    } catch (error) {
-
-        console.error("Erreur Firebase :", error);
-
-        showMessage(
-            "⚠️ Réservation enregistrée localement, mais synchronisation Firebase impossible.",
-            "#ff6464"
         );
 
         nameInput.value = "";
@@ -301,6 +355,9 @@ async function go() {
 }
 
 
+// =====================================
+// ADMINISTRATION
+// =====================================
 
 function openAdmin() {
 
@@ -325,7 +382,6 @@ function openAdmin() {
     }
 }
 
-
 function checkAdminAccess() {
 
     const currentPage =
@@ -344,6 +400,10 @@ function checkAdminAccess() {
     }
 }
 
+
+// =====================================
+// NAVIGATION
+// =====================================
 
 function initializeNavigation() {
 
@@ -376,6 +436,9 @@ function initializeNavigation() {
 }
 
 
+// =====================================
+// TOP BUTTON
+// =====================================
 
 function initializeTopButton() {
 
@@ -393,6 +456,10 @@ function initializeTopButton() {
     });
 }
 
+
+// =====================================
+// INTRO
+// =====================================
 
 function initializeIntro() {
 
@@ -418,6 +485,10 @@ function initializeIntro() {
 }
 
 
+// =====================================
+// INITIALISATION
+// =====================================
+
 document.addEventListener("DOMContentLoaded", function() {
 
     initializeTheme();
@@ -442,48 +513,17 @@ document.addEventListener("DOMContentLoaded", function() {
             toggleTheme
         );
     }
-// =====================================
-// WHATSAPP - BARBER KING
-// =====================================
 
-function envoyerWhatsApp(reservation) {
-
-    const numeroWhatsApp = "212639798816";
-
-    const dateFormatee = new Date(reservation.date)
-        .toLocaleString("fr-FR", {
-            dateStyle: "full",
-            timeStyle: "short"
-        });
-
-    const messageWhatsApp = `
-👑 BARBER KING
-━━━━━━━━━━━━━━━━
-
-✂️ NOUVELLE RÉSERVATION
-
-👤 Nom : ${reservation.nom}
-📞 Téléphone : ${reservation.telephone}
-💈 Service : ${reservation.service}
-📅 Date : ${dateFormatee}
-
-━━━━━━━━━━━━━━━━
-Nouvelle réservation reçue !
-`;
-
-    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(messageWhatsApp)}`;
-
-    window.open(url, "_blank");
-}
 });
 
 
-
+// =====================================
+// FONCTIONS GLOBALES
+// =====================================
 
 window.go = go;
-
 window.openAdmin = openAdmin;
-
 window.getReservations = getReservations;
-
 window.toggleTheme = toggleTheme;
+window.envoyerWhatsApp = envoyerWhatsApp;
+
